@@ -17,13 +17,28 @@ router.get('/stats', async (req, res) => {
       ORDER BY e.enviado_em DESC
       LIMIT 10
     `);
+    const regioesRes = await query(`
+      SELECT 
+        CASE 
+          WHEN t.email LIKE '%trt15%' THEN 'Interior SP (15ª)'
+          WHEN t.email LIKE '%trtsp%' OR t.email LIKE '%trt2%' THEN 'Capital / Litoral (2ª)'
+          ELSE 'Outras Regiões' 
+        END as name,
+        COUNT(e.id) as value
+      FROM envios e
+      JOIN tribunais t ON e.tribunal_id = t.id
+      WHERE e.status = 'enviado'
+      GROUP BY name
+      ORDER BY value DESC
+    `);
 
     res.json({
       totalEnvios: parseInt(totalEnviosRes.rows[0].total),
       enviosSucesso: parseInt(enviosSucessoRes.rows[0].total),
       totalCampanhas: parseInt(totalCampanhasRes.rows[0].total),
       totalTribunais: parseInt(totalTribunaisRes.rows[0].total),
-      historico: enviosRecentes.rows || []
+      historico: enviosRecentes.rows || [],
+      regioes: regioesRes.rows.map(r => ({ name: r.name, value: parseInt(r.value) }))
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

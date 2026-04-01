@@ -118,19 +118,19 @@ export const Dashboard = () => {
                 </div>
 
                 <div className="card" style={{ padding: '2rem', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
-                    <h3 style={{ marginBottom: '1.5rem', fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>Volume Recente Transmitido</h3>
+                    <h3 style={{ marginBottom: '1.5rem', fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>Concentração Geográfica</h3>
                     <div style={{ flex: 1, minHeight: 280 }}>
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={stats.historico.slice(0, 10).reverse()} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                <XAxis dataKey="campanha" hide />
+                            <BarChart data={stats.regioes || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                <XAxis dataKey="name" hide />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-light)' }} />
                                 <Tooltip 
                                     cursor={{fill: 'var(--bg-muted)', opacity: 0.5}} 
-                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: '1rem' }}
+                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: '1rem', fontWeight: 500 }}
                                 />
-                                <Bar dataKey="id" fill="var(--primary)" radius={[8, 8, 8, 8]} name="Disparos" maxBarSize={40}>
-                                    {stats.historico.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={index === stats.historico.length - 1 ? 'var(--primary)' : 'var(--primary-glow)'} />
+                                <Bar dataKey="value" fill="var(--primary)" radius={[8, 8, 8, 8]} name="E-mails Entregues" maxBarSize={40}>
+                                    {(stats.regioes || []).map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={index === 0 ? 'var(--primary)' : 'var(--primary-glow)'} />
                                     ))}
                                 </Bar>
                             </BarChart>
@@ -869,10 +869,25 @@ export const Campanhas = () => {
 
 export const Historico = () => {
     const [envios, setEnvios] = useState([]);
+    const [previewContent, setPreviewContent] = useState(null);
 
-    useEffect(() => {
+    const loadData = () => {
         api.get('/envios').then(res => setEnvios(res.data)).catch(() => toast.error('Erro ao buscar histórico'));
-    }, []);
+    };
+
+    useEffect(() => loadData(), []);
+
+    const handleViewEmail = async (h) => {
+        try {
+            const loadingToast = toast.loading('Buscando carta digital no servidor...');
+            const res = await api.get(`/envios/${h.id}/preview`);
+            toast.dismiss(loadingToast);
+            setPreviewContent({ html: res.data, titulo: h.assunto, destino: h.tribunal || 'Tribunal' });
+        } catch(e) {
+            toast.dismiss();
+            toast.error('Não foi possível gerar a visualização prévia desta versão histórica.');
+        }
+    };
 
     return (
         <div className="animate-fade">
@@ -892,7 +907,7 @@ export const Historico = () => {
                                 <th>Destinatário</th>
                                 <th>Assunto do E-mail</th>
                                 <th>Status de Entrega</th>
-                                <th>Verificação (Retorno)</th>
+                                <th style={{ textAlign: 'center' }}>Registros</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -903,11 +918,15 @@ export const Historico = () => {
                                     <td style={{ color: 'var(--text-muted)' }}>{h.assunto}</td>
                                     <td>
                                         {h.status === 'enviado' ? 
-                                            <span className="badge badge-success"><CheckCircle size={14}/> SUCESSO</span> :
-                                            <span className="badge badge-error" title={h.erro_mensagem}><AlertCircle size={14}/> FALHA SMTP</span>
+                                            <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.2)' }}><CheckCircle size={14}/> SUCESSO</span> :
+                                            <span className="badge" style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: '1px solid rgba(239, 68, 68, 0.2)' }} title={h.erro_mensagem}><AlertCircle size={14}/> FALHA SMTP</span>
                                         }
                                     </td>
-                                    <td><span className="badge badge-warning">Aguardando IMAP</span></td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <button className="btn btn-outline" onClick={() => handleViewEmail(h)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
+                                            👁️ Imprimir Tela
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                             {envios.length === 0 && (
@@ -921,6 +940,34 @@ export const Historico = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Email Viewer Modal */}
+            {previewContent && (
+                <div className="modal-overlay" onClick={() => setPreviewContent(null)} style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)' }}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 700, padding: '2rem', borderRadius: '1.25rem', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)', margin: 0, fontFamily: 'Outfit' }}>Auditoria de Envio</h2>
+                            <button onClick={() => setPreviewContent(null)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <div style={{ marginBottom: '1.5rem', background: 'var(--bg-muted)', padding: '1rem', borderRadius: '0.5rem', fontSize: '0.9rem', color: 'var(--text-main)' }}>
+                            <p style={{ margin: '0 0 0.5rem' }}><strong>Remetente:</strong> Pelo Servidor Principal (ehspro.com.br)</p>
+                            <p style={{ margin: '0 0 0.5rem' }}><strong>Recolhido Pela Vara:</strong> {previewContent.destino}</p>
+                            <p style={{ margin: 0 }}><strong>Assunto Entregue:</strong> {previewContent.titulo}</p>
+                        </div>
+                        <h4 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.75rem' }}>Corpo do Documento:</h4>
+                        
+                        <div style={{ width: '100%', height: '350px', background: '#fff', borderRadius: '0.5rem', border: '1px solid var(--border-light)', overflowY: 'auto', padding: '1.5rem', color: '#333' }}
+                             dangerouslySetInnerHTML={{ __html: previewContent.html }}
+                        />
+
+                        <div style={{ marginTop: '1.5rem', textAlign: 'right' }}>
+                            <button className="btn btn-outline" onClick={() => setPreviewContent(null)}>Fechar Visualização</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

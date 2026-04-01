@@ -19,4 +19,30 @@ router.get('/', async (req, res) => {
   }
 });
 
+// View specific email preview
+router.get('/:id/preview', async (req, res) => {
+  try {
+    const result = await query(`
+      SELECT t.nome as tribunal_nome, t.estado as tribunal_estado, t.cidade as tribunal_cidade, temp.corpo_html
+      FROM envios e
+      JOIN tribunais t ON e.tribunal_id = t.id
+      JOIN campanhas c ON e.campanha_id = c.id
+      JOIN templates temp ON c.template_id = temp.id
+      WHERE e.id = $1
+    `, [req.params.id]);
+
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Envio ou template não encontrado' });
+    
+    const row = result.rows[0];
+    let html = row.corpo_html
+        .replace(/\{\{nome_tribunal\}\}/g, row.tribunal_nome)
+        .replace(/\{\{estado\}\}/g, row.tribunal_estado)
+        .replace(/\{\{cidade\}\}/g, row.tribunal_cidade || '');
+        
+    res.send(html);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
