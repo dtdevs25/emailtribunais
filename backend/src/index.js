@@ -32,7 +32,7 @@ app.get('/health', (req, res) => {
 });
 
 // React Catch-all
-app.get(/.*/, (req, res) => {
+app.get('*', (req, res) => {
   // Use path.join instead of relative
   res.sendFile(path.join(publicPath, 'index.html'));
 });

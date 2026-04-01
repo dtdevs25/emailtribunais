@@ -4,7 +4,7 @@ import {
     LayoutDashboard, Gavel, Mail, Calendar, 
     Paperclip, History, Settings, ExternalLink, 
     Menu, X, Search, Bell, User, LogOut, ChevronRight,
-    TrendingUp, CheckCircle, Clock, AlertCircle
+    TrendingUp, CheckCircle, Clock, AlertCircle, Eye, EyeOff
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
