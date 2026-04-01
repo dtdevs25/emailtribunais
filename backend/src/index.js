@@ -41,17 +41,64 @@ app.get(/.*/, (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-// Auto-migration to ensure columns exist on legacy databases
+// Auto-migration to ensure tables and columns exist on legacy databases
 const runMigrations = async () => {
   try {
     await pool.query(`
+      CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+      CREATE TABLE IF NOT EXISTS templates (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        nome VARCHAR(100) NOT NULL,
+        assunto VARCHAR(255) NOT NULL,
+        corpo_html TEXT NOT NULL,
+        corpo_texto TEXT,
+        is_default BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS campanhas (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        nome VARCHAR(100) NOT NULL,
+        template_id UUID REFERENCES templates(id) ON DELETE SET NULL,
+        intervalo_dias INTEGER DEFAULT 15,
+        ativa BOOLEAN DEFAULT TRUE,
+        proxima_execucao TIMESTAMP WITH TIME ZONE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS anexos (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        nome VARCHAR(255) NOT NULL,
+        minio_path VARCHAR(500) NOT NULL,
+        mime_type VARCHAR(100),
+        tamanho_bytes BIGINT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS campanha_anexos (
+        campanha_id UUID REFERENCES campanhas(id) ON DELETE CASCADE,
+        anexo_id UUID REFERENCES anexos(id) ON DELETE CASCADE,
+        PRIMARY KEY (campanha_id, anexo_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS envios (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        campanha_id UUID REFERENCES campanhas(id) ON DELETE CASCADE,
+        tribunal_id UUID,
+        assunto VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'pendente',
+        erro_mensagem TEXT,
+        enviado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
       ALTER TABLE tribunais ADD COLUMN IF NOT EXISTS tipo VARCHAR(50) DEFAULT 'TJ';
       ALTER TABLE campanhas ADD COLUMN IF NOT EXISTS intervalo_dias INTEGER DEFAULT 15;
       ALTER TABLE campanhas ADD COLUMN IF NOT EXISTS ativa BOOLEAN DEFAULT TRUE;
       ALTER TABLE campanhas ADD COLUMN IF NOT EXISTS proxima_execucao TIMESTAMP WITH TIME ZONE;
       ALTER TABLE envios ADD COLUMN IF NOT EXISTS erro_mensagem TEXT;
     `);
-    console.log("Database schema auto-migrated successfully.");
+    console.log("Database schema migrated successfully.");
   } catch (err) {
     console.error("Migration failed:", err.message);
   }
