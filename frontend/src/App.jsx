@@ -2,31 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom';
 import { 
     LayoutDashboard, Gavel, Mail, Calendar, 
-    Paperclip, History, Settings, ExternalLink, 
-    Menu, X, Search, Bell, User, LogOut, ChevronRight,
-    TrendingUp, CheckCircle, Clock, AlertCircle, Eye, EyeOff
+    Paperclip, History, Menu, X, Search, Bell, LogOut, Eye, EyeOff
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
-
-// --- COMPONENTS ---
-
 import { Dashboard, Tribunais, Campanhas, Historico } from './Pages';
 
 const EmptyState = ({ title, icon: Icon }) => (
     <div className="animate-fade">
         <div className="page-header">
             <h1 className="page-title">{title}</h1>
-            <p className="page-subtitle">Configure e gerencie seus {title.toLowerCase()} para automação.</p>
+            <p className="page-subtitle">Página em desenvolvimento.</p>
         </div>
-        <div className="card" style={{ textAlign: 'center', padding: '6rem 2rem', background: 'rgba(30, 41, 59, 0.4)' }}>
-            <div style={{ width: 100, height: 100, background: 'rgba(255,255,255,0.03)', borderRadius: '50%', display: 'grid', placeItems: 'center', margin: '0 auto 2rem' }}>
-                <Icon size={48} style={{ opacity: 0.2 }} />
+        <div className="card" style={{ textAlign: 'center', padding: '6rem 2rem' }}>
+            <div style={{ width: 80, height: 80, background: 'var(--bg-muted)', borderRadius: '50%', display: 'grid', placeItems: 'center', margin: '0 auto 1.5rem' }}>
+                <Icon size={40} style={{ color: 'var(--primary)' }} />
             </div>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Módulo em Desenvolvimento</h3>
-            <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0 auto' }}>
-                Estamos polindo esta funcionalidade para que sua gestão de perícias seja 100% automatizada e profissional.
-            </p>
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Disponível em breve</h3>
         </div>
     </div>
 );
@@ -40,7 +32,6 @@ const LoginPage = ({ onLogin }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         setIsLoading(true);
-        // Simulate login
         setTimeout(() => {
             if (email === 'daniel-ehs@outlook.com' && password === 'nova@2026') {
                 onLogin();
@@ -54,26 +45,23 @@ const LoginPage = ({ onLogin }) => {
 
     return (
         <div className="login-page">
-            <div className="login-bg-blob" style={{ top: '-10%', left: '-10%' }}></div>
-            <div className="login-bg-blob" style={{ bottom: '-10%', right: '-10%', background: 'radial-gradient(circle, var(--accent) 0%, transparent 70%)', opacity: 0.2 }}></div>
-            
             <motion.div 
                 className="login-card"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
             >
-                <div className="login-header">
-                    <div className="login-logo">
-                        <Mail color="white" size={28} />
+                <div className="login-logo">
+                    <div className="logo-icon" style={{width: 56, height: 56, margin: '0 auto', marginBottom: '1rem', borderRadius: 16}}>
+                        <Mail color="white" size={32} />
                     </div>
-                    <h2 style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>Login</h2>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Acesse sua conta profissional.</p>
                 </div>
+                <h2 style={{fontFamily: 'Outfit', fontWeight: 700}}>Acesso Restrito</h2>
+                <p>Gestão de Nomeações e Disparos</p>
 
-                <form className="login-form" onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} style={{textAlign: 'left'}}>
                     <div className="form-group">
-                        <label className="form-label">Usuário</label>
+                        <label className="form-label">E-mail</label>
                         <input 
                             type="text" 
                             className="form-input" 
@@ -92,7 +80,7 @@ const LoginPage = ({ onLogin }) => {
                                 placeholder="••••••••" 
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                style={{ paddingRight: '3rem' }}
+                                style={{ paddingRight: '2.5rem' }}
                                 required
                             />
                             <button 
@@ -104,74 +92,12 @@ const LoginPage = ({ onLogin }) => {
                             </button>
                         </div>
                     </div>
-                    <button type="submit" className="btn-login" disabled={isLoading}>
-                        {isLoading ? 'Entrando...' : 'Entrar'}
+                    <button type="submit" className="btn btn-primary" style={{width: '100%', marginTop: '0.5rem', padding: '1rem'}} disabled={isLoading}>
+                        {isLoading ? 'Autenticando...' : 'Entrar no Sistema'}
                     </button>
                 </form>
-
-                <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                    Esqueceu sua senha? <a href="#" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Clique aqui</a>
-                </div>
             </motion.div>
         </div>
-    );
-};
-
-// --- MAIN LAYOUT ---
-
-const Sidebar = ({ collapsed }) => {
-    return (
-        <motion.div 
-            className={`sidebar ${collapsed ? 'collapsed' : ''}`}
-            initial={false}
-            animate={{ width: collapsed ? 80 : 280 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        >
-            <div className="logo-container">
-                <div className="logo-icon">
-                    <Mail color="white" size={24} />
-                </div>
-                <span className="logo-text">EmailPericia</span>
-            </div>
-
-            <nav className="sidebar-nav">
-                <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                    <LayoutDashboard className="link-icon" size={20} />
-                    <span className="nav-text">Dashboard</span>
-                </NavLink>
-                <NavLink to="/tribunais" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                    <Gavel className="link-icon" size={20} />
-                    <span className="nav-text">Tribunais</span>
-                </NavLink>
-                <NavLink to="/templates" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                    <Mail className="link-icon" size={20} />
-                    <span className="nav-text">Templates</span>
-                </NavLink>
-                <NavLink to="/campanhas" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                    <Calendar className="link-icon" size={20} />
-                    <span className="nav-text">Campanhas</span>
-                </NavLink>
-                <NavLink to="/anexos" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                    <Paperclip className="link-icon" size={20} />
-                    <span className="nav-text">Anexos</span>
-                </NavLink>
-                <NavLink to="/historico" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                    <History className="link-icon" size={20} />
-                    <span className="nav-text">Histórico de Envios</span>
-                </NavLink>
-                <NavLink to="/configuracoes" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                    <Settings className="link-icon" size={20} />
-                    <span className="nav-text">Configurações</span>
-                </NavLink>
-            </nav>
-
-            <div style={{ marginTop: 'auto', borderTop: '1px solid var(--glass-border)', paddingTop: '1.5rem' }}>
-                <a href="https://vps.perito.com" className="nav-link" target="_blank" rel="noreferrer">
-                    <ExternalLink className="link-icon" size={18} />
-                    <span className="nav-text">Status VPS</span>
-                </a>
-            </div>
-        </motion.div>
     );
 };
 
@@ -179,38 +105,33 @@ const Header = ({ collapsed, setCollapsed, onLogout }) => {
     return (
         <header className="header">
             <div className="header-left">
-                <button className="menu-toggle" onClick={() => setCollapsed(!collapsed)}>
-                    {collapsed ? <Menu size={20} /> : <X size={20} />}
+                <a href="/" className="logo-container">
+                    <div className="logo-icon">
+                        <Mail size={20} />
+                    </div>
+                    <span className="logo-text">EmailPerícia</span>
+                </a>
+                
+                <button className="menu-toggle" onClick={() => setCollapsed(!collapsed)} aria-label="Toggle menu">
+                    <Menu size={20} />
                 </button>
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                    <Search size={18} style={{ position: 'absolute', left: 12, color: 'var(--text-muted)' }} />
-                    <input 
-                        type="text" 
-                        placeholder="Pesquisar..." 
-                        style={{ 
-                            background: 'rgba(255,255,255,0.03)', 
-                            border: '1px solid var(--glass-border)', 
-                            borderRadius: '10px',
-                            padding: '0.6rem 1rem 0.6rem 2.5rem',
-                            color: 'white',
-                            fontSize: '0.9rem',
-                            width: '300px'
-                        }}
-                    />
+
+                <div className="header-search">
+                    <Search size={16} style={{ position: 'absolute', left: 12, color: 'var(--text-light)' }} />
+                    <input type="text" placeholder="Buscar tribunais ou campanhas..." />
                 </div>
             </div>
 
             <div className="header-right">
                 <button className="menu-toggle" style={{ position: 'relative' }}>
                     <Bell size={20} />
-                    <span style={{ position: 'absolute', top: 6, right: 6, width: 8, height: 8, background: 'var(--error)', borderRadius: '50%', border: '2px solid var(--bg-dark)' }}></span>
+                    <span style={{ position: 'absolute', top: 4, right: 4, width: 8, height: 8, background: 'var(--error)', borderRadius: '50%', border: '2px solid var(--bg-card)' }}></span>
                 </button>
                 
                 <div className="user-profile">
                     <div className="avatar">D</div>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Daniel</span>
-                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Administrador</span>
+                    <div style={{ display: 'none' }} className="user-info">
+                        {/* Hidden on small screens, can be styled later */}
                     </div>
                 </div>
 
@@ -218,7 +139,7 @@ const Header = ({ collapsed, setCollapsed, onLogout }) => {
                     onClick={onLogout}
                     className="menu-toggle" 
                     title="Sair do sistema"
-                    style={{ color: 'var(--error)' }}
+                    style={{ color: 'var(--text-muted)' }}
                 >
                     <LogOut size={20} />
                 </button>
@@ -227,11 +148,50 @@ const Header = ({ collapsed, setCollapsed, onLogout }) => {
     );
 };
 
+const Sidebar = ({ collapsed }) => {
+    return (
+        <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
+            <nav className="sidebar-nav">
+                <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                    <LayoutDashboard size={20} />
+                    <span className="nav-text">Dashboard</span>
+                </NavLink>
+                <NavLink to="/tribunais" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                    <Gavel size={20} />
+                    <span className="nav-text">Tribunais</span>
+                </NavLink>
+                <NavLink to="/campanhas" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                    <Calendar size={20} />
+                    <span className="nav-text">Campanhas</span>
+                </NavLink>
+                <NavLink to="/historico" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                    <History size={20} />
+                    <span className="nav-text">Histórico</span>
+                </NavLink>
+            </nav>
+        </aside>
+    );
+};
+
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(() => {
         return localStorage.getItem('isLoggedIn') === 'true';
     });
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+    // Auto-collapse sidebar on mobile
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth <= 1024) {
+                setSidebarCollapsed(true);
+            } else {
+                setSidebarCollapsed(false);
+            }
+        };
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Init Check
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const handleLogin = () => {
         setIsLoggedIn(true);
@@ -256,25 +216,24 @@ const App = () => {
     return (
         <Router>
             <div className="app-container">
-                <Sidebar collapsed={sidebarCollapsed} />
+                <Header 
+                    collapsed={sidebarCollapsed} 
+                    setCollapsed={setSidebarCollapsed} 
+                    onLogout={handleLogout}
+                />
                 
-                <div className={`main-wrapper ${sidebarCollapsed ? 'collapsed' : ''}`}>
-                    <Header 
-                        collapsed={sidebarCollapsed} 
-                        setCollapsed={setSidebarCollapsed} 
-                        onLogout={handleLogout}
-                    />
+                <div className="main-layout">
+                    <Sidebar collapsed={sidebarCollapsed} />
                     
-                    <main className="content-area">
-                        <Toaster position="top-right" />
+                    <main className={`content-area ${sidebarCollapsed ? 'collapsed' : ''}`}>
+                        <Toaster position="top-right" toastOptions={{
+                            style: { background: 'var(--bg-card)', color: 'var(--text-main)', border: '1px solid var(--border-light)' }
+                        }} />
                         <Routes>
                             <Route path="/" element={<Dashboard />} />
                             <Route path="/tribunais" element={<Tribunais />} />
-                            <Route path="/templates" element={<Navigate to="/campanhas" replace />} />
                             <Route path="/campanhas" element={<Campanhas />} />
-                            <Route path="/anexos" element={<EmptyState title="Anexos" icon={Paperclip} />} />
                             <Route path="/historico" element={<Historico />} />
-                            <Route path="/configuracoes" element={<EmptyState title="Configurações" icon={Settings} />} />
                             <Route path="*" element={<Navigate to="/" replace />} />
                         </Routes>
                     </main>
