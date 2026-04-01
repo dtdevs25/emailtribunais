@@ -6,8 +6,8 @@ const runCampanhas = async () => {
     try {
         const campanhas = await query(`
             SELECT c.*, t.assunto, t.corpo_html 
-            FROM emailpericia.campanhas c
-            JOIN emailpericia.templates t ON c.template_id = t.id
+            FROM campanhas c
+            JOIN templates t ON c.template_id = t.id
             WHERE c.ativa = TRUE 
             AND (c.proxima_execucao <= NOW() OR c.proxima_execucao IS NULL)
         `);
@@ -17,14 +17,14 @@ const runCampanhas = async () => {
             
             // Get tribunais for this campaign (or all active if none specified)
             const tribunais = await query(`
-                SELECT * FROM emailpericia.tribunais 
+                SELECT * FROM tribunais 
                 WHERE ativo = TRUE
             `);
 
             // Get attachments for this campaign
             const anexos = await query(`
-                SELECT a.* FROM emailpericia.anexos a
-                JOIN emailpericia.campanha_anexos ca ON a.id = ca.anexo_id
+                SELECT a.* FROM anexos a
+                JOIN campanha_anexos ca ON a.id = ca.anexo_id
                 WHERE ca.campanha_id = $1
             `, [campanha.id]);
 
@@ -45,14 +45,14 @@ const runCampanhas = async () => {
 
                     // Log success
                     await query(`
-                        INSERT INTO emailpericia.envios (campanha_id, tribunal_id, assunto, status)
+                        INSERT INTO envios (campanha_id, tribunal_id, assunto, status)
                         VALUES ($1, $2, $3, 'enviado')
                     `, [campanha.id, tribunal.id, campanha.assunto]);
 
                 } catch (error) {
                     console.error(`Error sending to ${tribunal.email}:`, error);
                     await query(`
-                        INSERT INTO emailpericia.envios (campanha_id, tribunal_id, assunto, status, erro_mensagem)
+                        INSERT INTO envios (campanha_id, tribunal_id, assunto, status, erro_mensagem)
                         VALUES ($1, $2, $3, 'erro', $4)
                     `, [campanha.id, tribunal.id, campanha.assunto, error.message]);
                 }
@@ -63,7 +63,7 @@ const runCampanhas = async () => {
             nextExecution.setDate(nextExecution.getDate() + (campanha.intervalo_dias || 15));
             
             await query(`
-                UPDATE emailpericia.campanhas 
+                UPDATE campanhas 
                 SET proxima_execucao = $1 
                 WHERE id = $2
             `, [nextExecution, campanha.id]);

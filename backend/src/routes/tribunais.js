@@ -5,7 +5,7 @@ const { query } = require('../db/pool');
 // List all courts
 router.get('/', async (req, res) => {
   try {
-    const result = await query('SELECT * FROM emailpericia.tribunais ORDER BY nome ASC');
+    const result = await query('SELECT * FROM tribunais ORDER BY nome ASC');
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -17,7 +17,7 @@ router.post('/', async (req, res) => {
   const { nome, estado, cidade, email, email_secundario, tipo, observacoes } = req.body;
   try {
     const result = await query(
-      'INSERT INTO emailpericia.tribunais (nome, estado, cidade, email, email_secundario, tipo, observacoes) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      'INSERT INTO tribunais (nome, estado, cidade, email, email_secundario, tipo, observacoes) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
       [nome, estado, cidade, email, email_secundario, tipo, observacoes]
     );
     res.status(201).json(result.rows[0]);
@@ -32,7 +32,7 @@ router.put('/:id', async (req, res) => {
   const { nome, estado, cidade, email, email_secundario, tipo, ativo, observacoes } = req.body;
   try {
     const result = await query(
-      'UPDATE emailpericia.tribunais SET nome=$1, estado=$2, cidade=$3, email=$4, email_secundario=$5, tipo=$6, ativo=$7, observacoes=$8, updated_at=NOW() WHERE id=$9 RETURNING *',
+      'UPDATE tribunais SET nome=$1, estado=$2, cidade=$3, email=$4, email_secundario=$5, tipo=$6, ativo=$7, observacoes=$8, updated_at=NOW() WHERE id=$9 RETURNING *',
       [nome, estado, cidade, email, email_secundario, tipo, ativo, observacoes, id]
     );
     res.json(result.rows[0]);
@@ -45,7 +45,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    await query('DELETE FROM emailpericia.tribunais WHERE id=$1', [id]);
+    await query('DELETE FROM tribunais WHERE id=$1', [id]);
     res.status(204).send();
   } catch (err) {
     res.status(500).json({ error: err.message });
