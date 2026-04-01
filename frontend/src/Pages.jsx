@@ -944,42 +944,33 @@ export const Historico = () => {
 
             {/* Email Viewer Modal */}
             {previewContent && (
-                <div className="modal-overlay" onClick={() => setPreviewContent(null)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <div>
-                                <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                                    <Mail size={24} color="var(--primary)" /> 
-                                    Auditoria de Envio
-                                </h2>
-                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
-                                    Cópia exata gerada pelo servidor
-                                </p>
-                            </div>
-                            <button className="modal-close" onClick={() => setPreviewContent(null)}>
-                                <X size={24} />
-                            </button>
+                <div className="modal-overlay" onClick={() => setPreviewContent(null)} style={{ background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)', zIndex: 9999 }}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 850, padding: '1.5rem 2rem', borderRadius: '1.25rem', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header" style={{ marginBottom: '1.25rem' }}>
+                            <h2 style={{fontSize:'1.25rem', display:'flex', alignItems:'center', gap:'0.5rem', color: 'var(--text-main)'}}>
+                                <Mail size={20} color="var(--primary)"/> Auditoria Visual
+                            </h2>
+                            <button className="modal-close" onClick={() => setPreviewContent(null)}><X size={20}/></button>
                         </div>
                         
                         <div style={{ marginBottom: '1.5rem', background: 'var(--bg-muted)', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.95rem' }}>
                                 <div><strong style={{ color: 'var(--text-main)' }}>Servidor Remetente:</strong> <span style={{ color: 'var(--text-muted)' }}>mail.ehspro.com.br</span></div>
                                 <div><strong style={{ color: 'var(--text-main)' }}>Destino Reconhecido:</strong> <span style={{ color: 'var(--text-muted)' }}>{previewContent.destino}</span></div>
-                                <div><strong style={{ color: 'var(--text-main)' }}>Assunto Injetado:</strong> <span style={{ color: 'var(--primary)' }}>{previewContent.titulo}</span></div>
+                                <div><strong style={{ color: 'var(--text-main)' }}>Assunto Injetado:</strong> <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{previewContent.titulo}</span></div>
                             </div>
                         </div>
                         
-                        <h4 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <CheckCircle size={18} color="var(--success)" /> Renderização do Documento
-                        </h4>
-                        
-                        <div style={{ width: '100%', height: '400px', background: '#ffffff', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', overflowY: 'auto', padding: '2rem', color: '#111827', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }}
-                             dangerouslySetInnerHTML={{ __html: previewContent.html }}
-                        />
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                            <label className="form-label" style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}><CheckCircle size={16} color="var(--success)"/> Cópia Fiel do Documento Gerado</label>
+                            <div style={{ width: '100%', height: '420px', background: '#ffffff', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', overflowY: 'auto', padding: '2rem', color: '#111827', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }}
+                                 dangerouslySetInnerHTML={{ __html: previewContent.html }}
+                            />
+                        </div>
 
-                        <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
-                            <button className="btn btn-primary" onClick={() => setPreviewContent(null)}>
-                                Fechar Visualização
+                        <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+                            <button className="btn btn-outline" style={{ padding: '0.75rem 2rem' }} onClick={() => setPreviewContent(null)}>
+                                Fechar
                             </button>
                         </div>
                     </div>
