@@ -430,6 +430,7 @@ export const Campanhas = () => {
     const [previewCampanha, setPreviewCampanha] = useState(null);
     const [editCampanha, setEditCampanha] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [successModal, setSuccessModal] = useState('');
     const [sendingTest, setSendingTest] = useState(false);
     const [emailTeste, setEmailTeste] = useState('daniel-ehs@outlook.com');
 
@@ -471,13 +472,35 @@ export const Campanhas = () => {
 
     const handleEdit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         try {
-            await api.patch(`/campanhas/${editCampanha.id}`, editCampanha);
+            const payload = { ...editCampanha };
+
+            if (filesToUpload.length > 0) {
+                toast.loading(`Enviando ${filesToUpload.length} novo(s) anexo(s)...`);
+                const anexo_ids = [];
+                for(let i=0; i<filesToUpload.length; i++) {
+                    const formData = new FormData();
+                    formData.append('file', filesToUpload[i]);
+                    const fileRes = await api.post('/anexos/upload', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    anexo_ids.push(fileRes.data.id);
+                }
+                toast.dismiss();
+                payload.anexo_ids = anexo_ids;
+            }
+
+            await api.patch(`/campanhas/${editCampanha.id}`, payload);
             toast.success('Campanha atualizada!');
             setEditCampanha(null);
+            setFilesToUpload([]);
             loadData();
         } catch(err) {
+            toast.dismiss();
             toast.error('Erro ao atualizar: ' + (err.response?.data?.error || err.message));
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -508,7 +531,8 @@ export const Campanhas = () => {
         setSendingTest(true);
         try {
             await api.post(`/campanhas/${previewCampanha.id}/test-email`, { email_teste: emailTeste });
-            toast.success(`E-mail teste enviado para ${emailTeste}! Verifique sua caixa de entrada.`);
+            setPreviewCampanha(null);
+            setSuccessModal(`O e-mail teste foi disparado com sucesso para ${emailTeste}! Verifique a caixa de entrada para conferir como ficou.`);
         } catch(err) {
             const msg = err.response?.data?.error || err.message;
             toast.error(`Falha no envio teste: ${msg}`, { duration: 8000 });
@@ -742,8 +766,9 @@ export const Campanhas = () => {
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) auto auto 120px', gap: '1rem', alignItems: 'flex-end' }}>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
-                                    {/* Placeholder column to align the grid 1:1 with form mapping fields naturally */}
-                                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Anexos editados pelo painel backend caso existam previamente.</p>
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Atualizar Anexo (Opcional)</label>
+                                    <input type="file" multiple className="form-input" style={{ padding: '0.65rem' }} onChange={(e) => setFilesToUpload(Array.from(e.target.files))} />
+                                    <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.2rem', display: 'block' }}>Irá substituir anexos atuais.</small>
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label className="form-label" style={{ fontWeight: 600 }}>Nova Data</label>
@@ -786,6 +811,28 @@ export const Campanhas = () => {
                             </button>
                             <button className="btn btn-outline" style={{ padding: '1rem', width: '100%', border: 'none', background: 'var(--bg-muted)' }} onClick={() => setDeleteConfirm(null)}>
                                 Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Test Email Success Modal */}
+            {successModal && (
+                <div className="modal-overlay" onClick={() => setSuccessModal('')} style={{ background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)' }}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 450, padding: '3rem', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }} onClick={e => e.stopPropagation()}>
+                        <div style={{ textAlign: 'center' }}>
+                            <div style={{ width: 80, height: 80, background: 'var(--success-bg)', color: 'var(--success)', borderRadius: '50%', display: 'grid', placeItems: 'center', margin: '0 auto 1.5rem', boxShadow: '0 0 50px rgba(16, 185, 129, 0.25)' }}>
+                                <Mail size={40} />
+                            </div>
+                            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.75rem', fontFamily: 'Outfit' }}>
+                                Tudo Certo!
+                            </h2>
+                            <p style={{ fontSize: '1rem', color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '2.5rem' }}>
+                                {successModal}
+                            </p>
+                            <button className="btn btn-primary" style={{ width: '100%', padding: '1.1rem', fontSize: '1.05rem', fontWeight: 600 }} onClick={() => setSuccessModal('')}>
+                                Entendi, Voltar
                             </button>
                         </div>
                     </div>

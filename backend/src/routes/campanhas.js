@@ -144,7 +144,7 @@ router.post('/:id/test-email', async (req, res) => {
 
 // Edit campaign & template
 router.patch('/:id', async (req, res) => {
-  const { nome, assunto, corpo_html, intervalo_dias, data_inicio, hora_inicio } = req.body;
+  const { nome, assunto, corpo_html, intervalo_dias, data_inicio, hora_inicio, anexo_ids } = req.body;
   try {
     const campanha = await query('SELECT template_id FROM campanhas WHERE id = $1', [req.params.id]);
     if (campanha.rows.length === 0) return res.status(404).json({ error: 'Campanha não encontrada' });
@@ -170,6 +170,15 @@ router.patch('/:id', async (req, res) => {
     }
 
     const result = await query(`UPDATE campanhas SET ${updates} WHERE id = $${params.length} RETURNING *`, params);
+    
+    // Update anexos if new ones were uploaded
+    if (anexo_ids && Array.isArray(anexo_ids)) {
+      await query('DELETE FROM campanha_anexos WHERE campanha_id = $1', [req.params.id]);
+      for (const anid of anexo_ids) {
+        await query('INSERT INTO campanha_anexos (campanha_id, anexo_id) VALUES ($1, $2)', [req.params.id, anid]);
+      }
+    }
+
     res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
