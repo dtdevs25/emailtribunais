@@ -292,24 +292,28 @@ export const Tribunais = () => {
 
             {/* Confirmation Delete Modal */}
             {deleteConfirm && (
-                <div className="modal-overlay" onClick={() => setDeleteConfirm(null)}>
-                    <div className="modal-content animate-fade" style={{ maxWidth: 500 }} onClick={e => e.stopPropagation()}>
-                        <div className="modal-header" style={{ borderBottom: 'none' }}>
-                            <h2 style={{ color: 'var(--error)' }}>⚠ Confirmar Exclusão</h2>
-                            <button className="modal-close" onClick={() => setDeleteConfirm(null)}><X size={20}/></button>
-                        </div>
-                        <div style={{ textAlign: 'center', padding: '1rem 0 2rem' }}>
-                            <p style={{ fontSize: '1.1rem', color: 'var(--text-main)', marginBottom: '0.8rem' }}>
-                                Você está prestes a excluir <strong>{deleteConfirm.nome}</strong>.
-                            </p>
-                            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-                                Esta ação <span style={{ color: 'var(--error)', fontWeight: 700 }}>não pode ser desfeita</span> e removerá todos os vínculos desta Vara/Tribunal.
+                <div className="modal-overlay" onClick={() => setDeleteConfirm(null)} style={{ background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(16px)' }}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 600, border: '1px solid rgba(239, 68, 68, 0.2)', padding: '4rem' }} onClick={e => e.stopPropagation()}>
+                        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+                            <div style={{ width: 80, height: 80, background: 'var(--error-bg)', color: 'var(--error)', borderRadius: '50%', display: 'grid', placeItems: 'center', margin: '0 auto 2rem', boxShadow: '0 0 40px rgba(239, 68, 68, 0.15)' }}>
+                                <Trash2 size={40} />
+                            </div>
+                            <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '1rem', fontFamily: 'Outfit' }}>Confirmar Exclusão?</h2>
+                            <p style={{ fontSize: '1.15rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                                Você está removendo permanentemente o tribunal <strong style={{ color: 'var(--text-main)' }}>{deleteConfirm.nome}</strong>.
                             </p>
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                            <button className="btn btn-outline" onClick={() => setDeleteConfirm(null)}>Cancelar</button>
-                            <button className="btn btn-primary" style={{ background: 'var(--error)', borderColor: 'var(--error)' }} onClick={() => handleDelete(deleteConfirm)} disabled={loading}>
-                                {loading ? 'Excluindo...' : '🗑 Confirmar Exclusão'}
+
+                        <div style={{ background: 'var(--error-bg)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(239, 68, 68, 0.1)', marginBottom: '2.5rem' }}>
+                            <p style={{ color: 'var(--error)', fontWeight: 700, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', fontSize: '1rem' }}>
+                                <AlertCircle size={20} /> ATENÇÃO: Esta exclusão não pode ser desfeita!
+                            </p>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                            <button className="btn btn-outline" style={{ padding: '1.25rem' }} onClick={() => setDeleteConfirm(null)}>Manter Registro</button>
+                            <button className="btn btn-primary" style={{ background: 'var(--error)', borderColor: 'var(--error)', padding: '1.25rem', boxShadow: '0 10px 20px rgba(239, 68, 68, 0.2)' }} onClick={() => handleDelete(deleteConfirm)} disabled={loading}>
+                                {loading ? 'Excluindo...' : 'Sim, Excluir Agora'}
                             </button>
                         </div>
                     </div>
@@ -364,30 +368,39 @@ export const Tribunais = () => {
 
             {/* Edit Tribunal Modal */}
             {editTribunal && (
-                <div className="modal-overlay" onClick={() => setEditTribunal(null)}>
-                    <div className="modal-content animate-fade" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h2 style={{fontSize:'1.15rem', display:'flex', alignItems:'center', gap:'0.5rem'}}>
-                                <Pencil size={20} color="var(--primary)"/> Editar Tribunal
-                            </h2>
-                            <button className="modal-close" onClick={() => setEditTribunal(null)}><X size={20}/></button>
+                <div className="modal-overlay" onClick={() => setEditTribunal(null)} style={{ background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(20px)' }}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 800, padding: '4rem', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }} onClick={e => e.stopPropagation()}>
+                        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+                            <div style={{ width: 64, height: 64, background: 'var(--primary-glow)', color: 'var(--primary)', borderRadius: '16px', display: 'grid', placeItems: 'center', margin: '0 auto 1.5rem' }}>
+                                <Pencil size={32} />
+                            </div>
+                            <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.03em' }}>Editar Registro</h2>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Atualize as informações de contato do tribunal ou vara.</p>
                         </div>
-                        <form onSubmit={handleUpdate}>
-                            <div className="form-group">
-                                <label className="form-label">Nome do Tribunal / Vara</label>
-                                <input className="form-input" required value={editTribunal.nome} onChange={e=>setEditTribunal({...editTribunal, nome: e.target.value})} />
+                        
+                        <form onSubmit={handleUpdate} style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.75rem' }}>Nome do Tribunal / Vara</label>
+                                    <input className="form-input" style={{ padding: '1.25rem', fontSize: '1rem' }} required value={editTribunal.nome} onChange={e=>setEditTribunal({...editTribunal, nome: e.target.value})} placeholder="Ex: 1ª Vara Cível de São Paulo" />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.75rem' }}>E-mail de Contato</label>
+                                    <input className="form-input" style={{ padding: '1.25rem', fontSize: '1rem' }} type="email" required value={editTribunal.email} onChange={e=>setEditTribunal({...editTribunal, email: e.target.value})} placeholder="contato@tj.jus.br" />
+                                </div>
                             </div>
+                            
                             <div className="form-group">
-                                <label className="form-label">E-mail de Contato</label>
-                                <input className="form-input" type="email" required value={editTribunal.email} onChange={e=>setEditTribunal({...editTribunal, email: e.target.value})} />
+                                <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.75rem' }}>Estado (UF)</label>
+                                <input className="form-input" style={{ padding: '1.25rem', fontSize: '1rem', width: '120px', textAlign: 'center' }} maxLength="2" required value={editTribunal.estado} onChange={e=>setEditTribunal({...editTribunal, estado: e.target.value.toUpperCase()})} />
                             </div>
-                            <div className="form-group">
-                                <label className="form-label">Estado (UF)</label>
-                                <input className="form-input" maxLength="2" required value={editTribunal.estado} onChange={e=>setEditTribunal({...editTribunal, estado: e.target.value.toUpperCase()})} />
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1.5rem', marginTop: '1rem' }}>
+                                <button type="button" className="btn btn-outline" style={{ padding: '1.25rem' }} onClick={() => setEditTribunal(null)}>Descartar Álterações</button>
+                                <button type="submit" className="btn btn-primary" style={{ padding: '1.25rem', fontSize: '1.1rem' }} disabled={loading}>
+                                    {loading ? 'Salvando...' : '💾 Atualizar Informações'}
+                                </button>
                             </div>
-                            <button type="submit" className="btn btn-primary" style={{width:'100%', padding:'1rem', marginTop:'0.5rem'}} disabled={loading}>
-                                {loading ? 'Salvando...' : '💾 Salvar Alterações'}
-                            </button>
                         </form>
                     </div>
                 </div>
