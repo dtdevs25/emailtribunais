@@ -124,6 +124,7 @@ const EmptyState = ({ title, icon: Icon }) => (
 const LoginPage = ({ onLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = (e) => {
@@ -131,11 +132,11 @@ const LoginPage = ({ onLogin }) => {
         setIsLoading(true);
         // Simulate login
         setTimeout(() => {
-            if (email === 'admin' && password === 'admin') {
+            if (email === 'daniel-ehs@outlook.com' && password === 'nova@2026') {
                 onLogin();
                 toast.success('Bem-vindo ao EmailPericia!');
             } else {
-                toast.error('Credenciais inválidas. Tente admin / admin.');
+                toast.error('Credenciais inválidas.');
             }
             setIsLoading(false);
         }, 800);
@@ -154,19 +155,19 @@ const LoginPage = ({ onLogin }) => {
             >
                 <div className="login-header">
                     <div className="login-logo">
-                        <Mail color="white" size={32} />
+                        <Mail color="white" size={28} />
                     </div>
-                    <h2 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Bem-vindo de volta</h2>
-                    <p style={{ color: 'var(--text-muted)' }}>Entre com suas credenciais para gerenciar suas perícias.</p>
+                    <h2 style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>Login</h2>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Acesse sua conta profissional.</p>
                 </div>
 
                 <form className="login-form" onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label className="form-label">Usuário ou E-mail</label>
+                        <label className="form-label">Usuário</label>
                         <input 
                             type="text" 
                             className="form-input" 
-                            placeholder="admin" 
+                            placeholder="daniel-ehs@outlook.com" 
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -174,22 +175,32 @@ const LoginPage = ({ onLogin }) => {
                     </div>
                     <div className="form-group">
                         <label className="form-label">Senha</label>
-                        <input 
-                            type="password" 
-                            className="form-input" 
-                            placeholder="••••••••" 
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
+                        <div className="password-input-wrapper">
+                            <input 
+                                type={showPassword ? 'text' : 'password'} 
+                                className="form-input" 
+                                placeholder="••••••••" 
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                style={{ paddingRight: '3rem' }}
+                                required
+                            />
+                            <button 
+                                type="button" 
+                                className="password-toggle"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
                     <button type="submit" className="btn-login" disabled={isLoading}>
-                        {isLoading ? 'Autenticando...' : 'Entrar no Sistema'}
+                        {isLoading ? 'Entrando...' : 'Entrar'}
                     </button>
                 </form>
 
-                <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                    Esqueceu sua senha? <a href="#" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Recuperar acesso</a>
+                <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    Esqueceu sua senha? <a href="#" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Clique aqui</a>
                 </div>
             </motion.div>
         </div>
