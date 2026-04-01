@@ -139,7 +139,8 @@ export const Tribunais = () => {
             setIsModalOpen(false);
             loadData();
         } catch(err) {
-            toast.error('Falha ao inserir em massa. Verifique o formato do texto.');
+            const serverMsg = err.response?.data?.error || err.message;
+            toast.error(`Falha: ${serverMsg}`, { duration: 6000 });
         } finally {
             setLoading(false);
         }

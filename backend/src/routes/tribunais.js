@@ -85,7 +85,8 @@ router.post('/bulk', async (req, res) => {
     }
     res.status(201).json({ success: true, count: inserted.length, records: inserted });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(">>> SQL BULK ERRO:", err);
+    res.status(500).json({ error: 'Erro detalhado do SQL: ' + err.message });
   }
 });
 
