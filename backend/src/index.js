@@ -11,16 +11,22 @@ const port = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+const path = require('path');
+
+// Static Files (Frontend)
+app.use(express.static(path.join(__dirname, '../public')));
+
 // Routes
 app.use('/api/tribunais', require('./routes/tribunais'));
 app.use('/api/configuracoes', require('./routes/configuracoes'));
 
-app.get('/', (req, res) => {
-  res.send('<h1>EmailPericia Backend is running!</h1><p>Visit <a href="/health">/health</a> for status.</p>');
-});
-
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'EmailPericia Backend is running' });
+});
+
+// React Catch-all
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'index.html'));
 });
 
 // Start server
