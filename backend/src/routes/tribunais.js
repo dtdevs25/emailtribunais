@@ -63,10 +63,23 @@ router.post('/bulk', async (req, res) => {
     const inserted = [];
     for (const t of tribunais) {
       if (t.nome && t.email) {
-        const result = await query(
-          'INSERT INTO tribunais (nome, estado, email, tipo) VALUES ($1, $2, $3, $4) ON CONFLICT (nome, estado) DO UPDATE SET email = EXCLUDED.email RETURNING *',
-          [t.nome, t.estado || 'SP', t.email, t.tipo || 'TJ']
+        const existing = await query(
+          'SELECT id FROM tribunais WHERE nome = $1 AND estado = $2',
+          [t.nome, t.estado || 'SP']
         );
+        
+        let result;
+        if (existing.rows.length > 0) {
+          result = await query(
+            'UPDATE tribunais SET email = $1, tipo = $2 WHERE id = $3 RETURNING *',
+            [t.email, t.tipo || 'TJ', existing.rows[0].id]
+          );
+        } else {
+          result = await query(
+            'INSERT INTO tribunais (nome, estado, email, tipo) VALUES ($1, $2, $3, $4) RETURNING *',
+            [t.nome, t.estado || 'SP', t.email, t.tipo || 'TJ']
+          );
+        }
         inserted.push(result.rows[0]);
       }
     }
