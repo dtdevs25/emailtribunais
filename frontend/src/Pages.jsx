@@ -24,34 +24,44 @@ export const Dashboard = () => {
                 </div>
             </div>
 
-            <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
-                <div className="card stat-card" style={{ borderLeft: '4px solid var(--primary)' }}>
-                    <div className="stat-icon-box" style={{ background: 'var(--primary-glow)', color: 'var(--primary)' }}>
+            <div className="stats-grid">
+                <div className="card stat-card" style={{ borderLeft: '4px solid var(--primary)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div className="stat-icon-box" style={{ background: 'var(--primary-glow)', color: 'var(--primary)', width: 48, height: 48, borderRadius: 12, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
                         <TrendingUp size={24} />
                     </div>
                     <div>
-                        <div className="stat-label">Total Enviados</div>
-                        <div className="stat-value">{stats.totalEnvios}</div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>Total Enviados</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{stats.totalEnvios}</div>
                     </div>
                 </div>
                 
-                <div className="card stat-card" style={{ borderLeft: '4px solid var(--secondary)' }}>
-                    <div className="stat-icon-box" style={{ background: 'rgba(14, 165, 233, 0.1)', color: 'var(--secondary)' }}>
+                <div className="card stat-card" style={{ borderLeft: '4px solid var(--secondary)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div className="stat-icon-box" style={{ background: 'rgba(14, 165, 233, 0.1)', color: 'var(--secondary)', width: 48, height: 48, borderRadius: 12, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
                         <Gavel size={24} />
                     </div>
                     <div>
-                        <div className="stat-label">VTs Cadastradas</div>
-                        <div className="stat-value">{stats.totalTribunais}</div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>VTs Cadastradas</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{stats.totalTribunais}</div>
                     </div>
                 </div>
 
-                <div className="card stat-card" style={{ borderLeft: '4px solid var(--success)' }}>
-                    <div className="stat-icon-box" style={{ background: 'var(--success-bg)', color: 'var(--success)' }}>
+                <div className="card stat-card" style={{ borderLeft: '4px solid var(--success)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div className="stat-icon-box" style={{ background: 'var(--success-bg)', color: 'var(--success)', width: 48, height: 48, borderRadius: 12, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
                         <CheckCircle size={24} />
                     </div>
                     <div>
-                        <div className="stat-label">Taxa de Sucesso</div>
-                        <div className="stat-value">{sRate}%</div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>Taxa de Sucesso</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{sRate}%</div>
+                    </div>
+                </div>
+
+                <div className="card stat-card" style={{ borderLeft: '4px solid var(--warning)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div className="stat-icon-box" style={{ background: 'var(--warning-bg)', color: 'var(--warning)', width: 48, height: 48, borderRadius: 12, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                        <Calendar size={24} />
+                    </div>
+                    <div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>Campanhas</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{stats.totalCampanhas}</div>
                     </div>
                 </div>
             </div>
@@ -109,6 +119,7 @@ export const Tribunais = () => {
     const [bulkText, setBulkText] = useState('');
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editTribunal, setEditTribunal] = useState(null);
 
     const loadData = () => {
         api.get('/tribunais').then(res => setTribunais(res.data)).catch(() => toast.error('Erro ao listar tribunais'));
@@ -125,6 +136,32 @@ export const Tribunais = () => {
             toast.success("Massa de dados carregada do arquivo!");
         };
         reader.readAsText(file);
+    };
+
+    const handleDelete = async (id) => {
+        if (!confirm('Deseja realmente remover este registro?')) return;
+        try {
+            await api.delete(`/tribunais/${id}`);
+            toast.success('Tribunal removido com sucesso!');
+            loadData();
+        } catch (err) {
+            toast.error('Erro ao remover tribunal');
+        }
+    };
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            await api.patch(`/tribunais/${editTribunal.id}`, editTribunal);
+            toast.success('Informações atualizadas!');
+            setEditTribunal(null);
+            loadData();
+        } catch (err) {
+            toast.error('Erro ao atualizar');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleBulkInsert = async (e) => {
@@ -177,6 +214,7 @@ export const Tribunais = () => {
                                 <th>Nome do Tribunal / Vara</th>
                                 <th>Email de Contato</th>
                                 <th>Estado (UF)</th>
+                                <th style={{textAlign:'center'}}>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -185,11 +223,21 @@ export const Tribunais = () => {
                                     <td style={{fontWeight:500, color: 'var(--text-main)'}}>{t.nome}</td>
                                     <td style={{color: 'var(--text-muted)'}}>{t.email}</td>
                                     <td><span className="badge badge-warning">{t.estado}</span></td>
+                                    <td>
+                                        <div style={{display:'flex', gap:'0.5rem', justifyContent:'center'}}>
+                                            <button className="btn-icon btn-edit" onClick={() => setEditTribunal(t)}>
+                                                <Pencil size={16}/>
+                                            </button>
+                                            <button className="btn-icon btn-delete" onClick={() => handleDelete(t.id)}>
+                                                <X size={16}/>
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                             {tribunais.length === 0 && (
                                 <tr>
-                                    <td colSpan="3" style={{textAlign:'center', padding: '3rem', color: 'var(--text-light)'}}>
+                                    <td colSpan="4" style={{textAlign:'center', padding: '3rem', color: 'var(--text-light)'}}>
                                         Nenhum tribunal cadastrado. Adicione seus contatos para iniciar.
                                     </td>
                                 </tr>
@@ -244,7 +292,39 @@ export const Tribunais = () => {
                     </div>
                 </div>
             )}
+
+            {/* Edit Tribunal Modal */}
+            {editTribunal && (
+                <div className="modal-overlay" onClick={() => setEditTribunal(null)}>
+                    <div className="modal-content animate-fade" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2 style={{fontSize:'1.15rem', display:'flex', alignItems:'center', gap:'0.5rem'}}>
+                                <Pencil size={20} color="var(--primary)"/> Editar Tribunal
+                            </h2>
+                            <button className="modal-close" onClick={() => setEditTribunal(null)}><X size={20}/></button>
+                        </div>
+                        <form onSubmit={handleUpdate}>
+                            <div className="form-group">
+                                <label className="form-label">Nome do Tribunal / Vara</label>
+                                <input className="form-input" required value={editTribunal.nome} onChange={e=>setEditTribunal({...editTribunal, nome: e.target.value})} />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">E-mail de Contato</label>
+                                <input className="form-input" type="email" required value={editTribunal.email} onChange={e=>setEditTribunal({...editTribunal, email: e.target.value})} />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Estado (UF)</label>
+                                <input className="form-input" maxLength="2" required value={editTribunal.estado} onChange={e=>setEditTribunal({...editTribunal, estado: e.target.value.toUpperCase()})} />
+                            </div>
+                            <button type="submit" className="btn btn-primary" style={{width:'100%', padding:'1rem', marginTop:'0.5rem'}} disabled={loading}>
+                                {loading ? 'Salvando...' : '💾 Salvar Alterações'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
+
     );
 };
 
@@ -417,14 +497,14 @@ export const Campanhas = () => {
                                     </td>
                                     <td>
                                         <div style={{display:'flex', gap:'0.5rem', justifyContent:'center'}}>
-                                            <button className="btn btn-outline" style={{padding:'0.3rem 0.7rem', fontSize:'0.8rem'}} onClick={() => setPreviewCampanha(c)}>
-                                                <Mail size={14}/> Preview
+                                            <button className="btn-icon" title="Ver Preview e Enviar Teste" onClick={() => setPreviewCampanha(c)}>
+                                                <Mail size={16}/>
                                             </button>
-                                            <button className="btn btn-outline" style={{padding:'0.3rem 0.7rem', fontSize:'0.8rem', color:'var(--primary)', borderColor:'var(--primary)'}} onClick={() => setEditCampanha({ ...c, assunto: c.assunto || '', corpo_html: c.corpo_html || '', data_inicio: c.proxima_execucao ? new Date(c.proxima_execucao).toISOString().split('T')[0] : new Date().toISOString().split('T')[0], hora_inicio: c.proxima_execucao ? new Date(c.proxima_execucao).toTimeString().slice(0,5) : '08:00' })}>
-                                                <Pencil size={14}/>
+                                            <button className="btn-icon btn-edit" title="Editar Campanha" onClick={() => setEditCampanha({ ...c, assunto: c.assunto || '', corpo_html: c.corpo_html || '', data_inicio: c.proxima_execucao ? new Date(c.proxima_execucao).toISOString().split('T')[0] : new Date().toISOString().split('T')[0], hora_inicio: c.proxima_execucao ? new Date(c.proxima_execucao).toTimeString().slice(0,5) : '08:00' })}>
+                                                <Pencil size={16}/>
                                             </button>
-                                            <button className="btn btn-outline" style={{padding:'0.3rem 0.7rem', fontSize:'0.8rem', color:'var(--error)', borderColor:'var(--error)'}} onClick={() => handleDelete(c.id)}>
-                                                <X size={14}/>
+                                            <button className="btn-icon btn-delete" title="Excluir Campanha" onClick={() => handleDelete(c.id)}>
+                                                <X size={16}/>
                                             </button>
                                         </div>
                                     </td>
