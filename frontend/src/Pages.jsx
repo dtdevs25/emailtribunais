@@ -891,6 +891,7 @@ export const Historico = () => {
     };
 
     return (
+        <>
         <div className="animate-fade">
             <div className="page-header">
                 <div>
@@ -941,6 +942,7 @@ export const Historico = () => {
                     </table>
                 </div>
             </div>
+        </div>
 
             {/* Email Viewer Modal */}
             {previewContent && (
@@ -976,6 +978,6 @@ export const Historico = () => {
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 };
