@@ -20,12 +20,23 @@ const sendEmail = async (to, subject, html, attachments = []) => {
 
   if (!fromEmail) throw new Error('SMTP_USER not configured in environment');
 
+  // Remove HTML tags for plain text fallback to improve SPAM score
+  const fallbackText = html.replace(/<[^>]*>?/gm, '');
+
   const mailOptions = {
     from: `"${fromName}" <${fromEmail}>`,
     to,
+    replyTo: fromEmail,
     subject,
+    text: fallbackText,
     html,
-    attachments
+    attachments,
+    headers: {
+      'Precedence': 'bulk',
+      'X-Auto-Response-Suppress': 'OOF',
+      'List-Unsubscribe': `<mailto:${fromEmail}?subject=unsubscribe>`
+    },
+    messageId: `<${Date.now()}-${Math.random().toString(36).substring(2)}@ehspro.com.br>`
   };
 
   return transporter.sendMail(mailOptions);

@@ -432,6 +432,7 @@ export const Campanhas = () => {
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [successModal, setSuccessModal] = useState('');
     const [sendingTest, setSendingTest] = useState(false);
+    const [triggering, setTriggering] = useState(false);
     const [emailTeste, setEmailTeste] = useState('daniel-ehs@outlook.com');
 
     const loadData = () => {
@@ -538,6 +539,26 @@ export const Campanhas = () => {
             toast.error(`Falha no envio teste: ${msg}`, { duration: 8000 });
         } finally {
             setSendingTest(false);
+        }
+    };
+
+    const handleTrigger = async () => {
+        if (!process.env.NODE_ENV === 'development' && !window.confirm('Tem certeza? Isso fará o disparo real para a sua base de contatos agora mesmo!')) return;
+        if (!previewCampanha) return;
+        setTriggering(true);
+        try {
+            const res = await api.post(`/campanhas/${previewCampanha.id}/trigger`);
+            setPreviewCampanha(null);
+            if (res.data.skipped || res.data.sent === 0) {
+                setSuccessModal(`Proteção Ativada: O sistema interrompeu o envio porque TODOS os tribunais configurados já receberam esta campanha nos últimos ${previewCampanha.intervalo_dias} dias.`);
+            } else {
+                setSuccessModal(`Sucesso Absoluto! E-mail encaminhado para ${res.data.sent} varas que ainda não haviam recebido este material neste ciclo.`);
+            }
+            loadData();
+        } catch(err) {
+            toast.error('Erro na execução da campanha: ' + (err.response?.data?.error || err.message));
+        } finally {
+            setTriggering(false);
         }
     };
 
@@ -670,18 +691,21 @@ export const Campanhas = () => {
                             dangerouslySetInnerHTML={{ __html: getPreviewHtml(previewCampanha) }}
                         />
 
-                        {/* Test Email */}
-                        <div style={{marginTop:'1.25rem', display:'flex', gap:'0.75rem', alignItems:'center'}}>
+                        {/* Actions */}
+                        <div style={{marginTop:'1.25rem', display:'flex', flexWrap: 'wrap', gap:'0.75rem', alignItems:'center'}}>
                             <input
                                 type="email"
                                 className="form-input"
-                                style={{flex:1, padding: '0.85rem'}}
+                                style={{flex:1, minWidth: '180px', padding: '0.85rem'}}
                                 value={emailTeste}
                                 onChange={e => setEmailTeste(e.target.value)}
                                 placeholder="E-mail receptor do teste"
                             />
-                            <button className="btn btn-primary" onClick={handleSendTest} disabled={sendingTest || !emailTeste} style={{padding: '0.85rem 1.5rem', whiteSpace:'nowrap'}}>
-                                {sendingTest ? 'Disparando...' : '🚀 Testar Fluxo de Envio'}
+                            <button className="btn btn-outline" onClick={handleSendTest} disabled={sendingTest || triggering || !emailTeste} style={{padding: '0.85rem 1rem', whiteSpace:'nowrap', color: 'var(--text-main)', border: '1px solid var(--border-light)'}}>
+                                {sendingTest ? 'Aguarde...' : 'Testar Fluxo Interno'}
+                            </button>
+                            <button className="btn btn-primary" onClick={handleTrigger} disabled={triggering || sendingTest} style={{padding: '0.85rem 1rem', whiteSpace:'nowrap'}}>
+                                {triggering ? 'Disparando...' : '🚀 Executar Para Varões Restantes agora'}
                             </button>
                         </div>
                     </div>

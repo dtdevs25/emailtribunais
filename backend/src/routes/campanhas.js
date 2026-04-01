@@ -142,6 +142,26 @@ router.post('/:id/test-email', async (req, res) => {
   }
 });
 
+// Manual Trigger - Ignores active/inactive but respects tribunal cooldown
+router.post('/:id/trigger', async (req, res) => {
+  try {
+    const { executeCampanhaLogic } = require('../services/schedulerService');
+    const result = await query(`
+        SELECT c.*, t.assunto, t.corpo_html 
+        FROM campanhas c
+        JOIN templates t ON c.template_id = t.id
+        WHERE c.id = $1
+    `, [req.params.id]);
+
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Campanha não encontrada' });
+
+    const responseInfo = await executeCampanhaLogic(result.rows[0]);
+    res.json(responseInfo);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Edit campaign & template
 router.patch('/:id', async (req, res) => {
   const { nome, assunto, corpo_html, intervalo_dias, data_inicio, hora_inicio, anexo_ids } = req.body;
