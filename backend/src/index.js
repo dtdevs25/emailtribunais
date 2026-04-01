@@ -15,6 +15,10 @@ app.use(express.json());
 app.use('/api/tribunais', require('./routes/tribunais'));
 app.use('/api/configuracoes', require('./routes/configuracoes'));
 
+app.get('/', (req, res) => {
+  res.send('<h1>EmailPericia Backend is running!</h1><p>Visit <a href="/health">/health</a> for status.</p>');
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'EmailPericia Backend is running' });
 });
