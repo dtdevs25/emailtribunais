@@ -97,6 +97,7 @@ const runMigrations = async () => {
       ALTER TABLE campanhas ADD COLUMN IF NOT EXISTS ativa BOOLEAN DEFAULT TRUE;
       ALTER TABLE campanhas ADD COLUMN IF NOT EXISTS proxima_execucao TIMESTAMP WITH TIME ZONE;
       ALTER TABLE envios ADD COLUMN IF NOT EXISTS erro_mensagem TEXT;
+      ALTER TABLE envios ADD COLUMN IF NOT EXISTS assunto VARCHAR(255);
     `);
     console.log("Database schema migrated successfully.");
   } catch (err) {
