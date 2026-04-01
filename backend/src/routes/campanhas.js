@@ -2,7 +2,26 @@ const express = require('express');
 const router = express.Router();
 const { query } = require('../db/pool');
 const { sendEmail } = require('../services/emailService');
-const path = require('path');
+const Minio = require('minio');
+
+const minioClient = new Minio.Client({
+    endPoint: process.env.MINIO_ENDPOINT || 'storage-api.ehspro.com.br',
+    port: parseInt(process.env.MINIO_PORT) || 443,
+    useSSL: process.env.MINIO_USE_SSL === 'true',
+    accessKey: process.env.MINIO_ACCESS_KEY,
+    secretKey: process.env.MINIO_SECRET_KEY,
+});
+const BUCKET = process.env.MINIO_BUCKET_NAME || 'email-tribunais';
+
+const getMinioBuffer = (objectName) => new Promise((resolve, reject) => {
+    const chunks = [];
+    minioClient.getObject(BUCKET, objectName, (err, stream) => {
+        if (err) return reject(err);
+        stream.on('data', c => chunks.push(c));
+        stream.on('end', () => resolve(Buffer.concat(chunks)));
+        stream.on('error', reject);
+    });
+});
 
 // List campaigns with template data
 router.get('/', async (req, res) => {
@@ -98,12 +117,16 @@ router.post('/:id/test-email', async (req, res) => {
       .replace(/\{\{estado\}\}/g, 'SP')
       .replace(/\{\{cidade\}\}/g, 'São Paulo');
 
-    const attachments = (campanha.anexos || [])
-      .filter(a => a && a.minio_path)
-      .map(a => ({
-        filename: a.nome,
-        path: a.minio_path
-      }));
+    const attachments = [];
+    for (const a of (campanha.anexos || []).filter(a => a && a.minio_path)) {
+      try {
+        const objectName = a.minio_path.includes('/') ? a.minio_path.split('/').slice(1).join('/') : a.minio_path;
+        const content = await getMinioBuffer(objectName);
+        attachments.push({ filename: a.nome, content });
+      } catch(e) {
+        console.error(`Attachment fetch failed for ${a.nome}:`, e.message);
+      }
+    }
 
     await sendEmail(
       targetEmail,
@@ -119,6 +142,51 @@ router.post('/:id/test-email', async (req, res) => {
   }
 });
 
+// Edit campaign & template
+router.patch('/:id', async (req, res) => {
+  const { nome, assunto, corpo_html, intervalo_dias, data_inicio, hora_inicio } = req.body;
+  try {
+    const campanha = await query('SELECT template_id FROM campanhas WHERE id = $1', [req.params.id]);
+    if (campanha.rows.length === 0) return res.status(404).json({ error: 'Campanha não encontrada' });
+
+    const templateId = campanha.rows[0].template_id;
+
+    // Update template
+    if (templateId) {
+      await query('UPDATE templates SET assunto = $1, corpo_html = $2 WHERE id = $3', [assunto, corpo_html, templateId]);
+    }
+
+    // Update proxima_execucao if date/time changed
+    let updates = 'nome = $1, intervalo_dias = $2';
+    let params = [nome, intervalo_dias || 15];
+
+    if (data_inicio && hora_inicio) {
+      const proximaExec = new Date(`${data_inicio}T${hora_inicio}:00-03:00`);
+      updates += ', proxima_execucao = $3';
+      params.push(proximaExec);
+      params.push(req.params.id);
+    } else {
+      params.push(req.params.id);
+    }
+
+    const result = await query(`UPDATE campanhas SET ${updates} WHERE id = $${params.length} RETURNING *`, params);
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Toggle campaign active/inactive
+router.patch('/:id/toggle', async (req, res) => {
+  try {
+    const result = await query('UPDATE campanhas SET ativa = NOT ativa WHERE id = $1 RETURNING *', [req.params.id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Campanha não encontrada' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Delete campaign
 router.delete('/:id', async (req, res) => {
   try {
@@ -130,3 +198,4 @@ router.delete('/:id', async (req, res) => {
 });
 
 module.exports = router;
+

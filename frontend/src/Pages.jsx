@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
     LayoutDashboard, Gavel, Mail, Calendar, Paperclip, 
-    History, TrendingUp, CheckCircle, Clock, AlertCircle, X, Plus, UploadCloud
+    History, TrendingUp, CheckCircle, Clock, AlertCircle, X, Plus, UploadCloud, Pencil
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from './api';
@@ -258,6 +258,7 @@ export const Campanhas = () => {
     const [loading, setLoading] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [previewCampanha, setPreviewCampanha] = useState(null);
+    const [editCampanha, setEditCampanha] = useState(null);
     const [sendingTest, setSendingTest] = useState(false);
     const [emailTeste, setEmailTeste] = useState('daniel-ehs@outlook.com');
 
@@ -294,6 +295,18 @@ export const Campanhas = () => {
             toast.error(`Erro: ${serverMsg}`, { duration: 6000 });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        try {
+            await api.patch(`/campanhas/${editCampanha.id}`, editCampanha);
+            toast.success('Campanha atualizada!');
+            setEditCampanha(null);
+            loadData();
+        } catch(err) {
+            toast.error('Erro ao atualizar: ' + (err.response?.data?.error || err.message));
         }
     };
 
@@ -406,6 +419,9 @@ export const Campanhas = () => {
                                         <div style={{display:'flex', gap:'0.5rem', justifyContent:'center'}}>
                                             <button className="btn btn-outline" style={{padding:'0.3rem 0.7rem', fontSize:'0.8rem'}} onClick={() => setPreviewCampanha(c)}>
                                                 <Mail size={14}/> Preview
+                                            </button>
+                                            <button className="btn btn-outline" style={{padding:'0.3rem 0.7rem', fontSize:'0.8rem', color:'var(--primary)', borderColor:'var(--primary)'}} onClick={() => setEditCampanha({ ...c, assunto: c.assunto || '', corpo_html: c.corpo_html || '', data_inicio: c.proxima_execucao ? new Date(c.proxima_execucao).toISOString().split('T')[0] : new Date().toISOString().split('T')[0], hora_inicio: c.proxima_execucao ? new Date(c.proxima_execucao).toTimeString().slice(0,5) : '08:00' })}>
+                                                <Pencil size={14}/>
                                             </button>
                                             <button className="btn btn-outline" style={{padding:'0.3rem 0.7rem', fontSize:'0.8rem', color:'var(--error)', borderColor:'var(--error)'}} onClick={() => handleDelete(c.id)}>
                                                 <X size={14}/>
@@ -533,6 +549,52 @@ export const Campanhas = () => {
                             </div>
                             <button type="submit" className="btn btn-primary" style={{width:'100%', padding:'1rem', marginTop:'0.5rem'}} disabled={loading}>
                                 {loading ? 'Processando...' : '🚀 Salvar e Ativar Campanha'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Modal */}
+            {editCampanha && (
+                <div className="modal-overlay" onClick={() => setEditCampanha(null)}>
+                    <div className="modal-content animate-fade" style={{maxWidth: 700, width: '95vw'}} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2 style={{fontSize:'1.15rem', display:'flex', alignItems:'center', gap:'0.5rem'}}>
+                                <Pencil size={20} color="var(--primary)"/> Editar Campanha
+                            </h2>
+                            <button className="modal-close" onClick={() => setEditCampanha(null)}><X size={20}/></button>
+                        </div>
+                        <form onSubmit={handleEdit}>
+                            <div className="form-group">
+                                <label className="form-label">Título da Campanha</label>
+                                <input className="form-input" required value={editCampanha.nome} onChange={e=>setEditCampanha({...editCampanha, nome: e.target.value})} />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Assunto do E-mail</label>
+                                <input className="form-input" required value={editCampanha.assunto} onChange={e=>setEditCampanha({...editCampanha, assunto: e.target.value})} />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Conteúdo HTML do E-mail</label>
+                                <textarea className="form-input" style={{height:'220px', fontFamily:'monospace', fontSize:'0.82rem'}} required value={editCampanha.corpo_html} onChange={e=>setEditCampanha({...editCampanha, corpo_html: e.target.value})}></textarea>
+                                <small style={{color:'var(--primary)', fontWeight:500}}>Use {'{{nome_tribunal}}'} para personalizar por juízo!</small>
+                            </div>
+                            <div style={{display:'flex', gap:'1rem'}}>
+                                <div className="form-group" style={{flex:1}}>
+                                    <label className="form-label">Data de Início</label>
+                                    <input type="date" className="form-input" value={editCampanha.data_inicio} onChange={e=>setEditCampanha({...editCampanha, data_inicio: e.target.value})} />
+                                </div>
+                                <div className="form-group" style={{flex:1}}>
+                                    <label className="form-label">Horário (BRT)</label>
+                                    <input type="time" className="form-input" value={editCampanha.hora_inicio} onChange={e=>setEditCampanha({...editCampanha, hora_inicio: e.target.value})} />
+                                </div>
+                                <div className="form-group" style={{flex:1}}>
+                                    <label className="form-label">Repetir a cada (dias)</label>
+                                    <input type="number" className="form-input" min="1" value={editCampanha.intervalo_dias} onChange={e=>setEditCampanha({...editCampanha, intervalo_dias: e.target.value})} />
+                                </div>
+                            </div>
+                            <button type="submit" className="btn btn-primary" style={{width:'100%', padding:'1rem', marginTop:'0.5rem'}}>
+                                💾 Salvar Alterações
                             </button>
                         </form>
                     </div>
