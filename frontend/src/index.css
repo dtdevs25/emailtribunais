@@ -126,6 +126,7 @@ h1, h2, h3, h4 {
   white-space: nowrap;
   background: linear-gradient(to right, #fff, var(--text-muted));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   transition: opacity 0.2s;
 }

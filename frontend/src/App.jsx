@@ -282,7 +282,7 @@ const Header = ({ collapsed, setCollapsed, onLogout }) => {
             <div className="header-right">
                 <button className="menu-toggle" style={{ position: 'relative' }}>
                     <Bell size={20} />
-                    <span style={{ position: 'absolute', top: 6, right: 6, width: 8, height: 8, background: var(--error), borderRadius: '50%', border: '2px solid var(--bg-dark)' }}></span>
+                    <span style={{ position: 'absolute', top: 6, right: 6, width: 8, height: 8, background: 'var(--error)', borderRadius: '50%', border: '2px solid var(--bg-dark)' }}></span>
                 </button>
                 
                 <div className="user-profile">
