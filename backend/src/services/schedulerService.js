@@ -36,7 +36,7 @@ const executeCampanhaLogic = async (campanha) => {
                 WHERE e.tribunal_id = t.id 
                 AND e.campanha_id = $1 
                 AND e.status = 'enviado'
-                AND e.created_at >= NOW() - ($2 * INTERVAL '1 day')
+                AND e.enviado_em >= NOW() - ($2 * INTERVAL '1 day')
             )
         `, [campanha.id, campanha.intervalo_dias || 15]);
 
