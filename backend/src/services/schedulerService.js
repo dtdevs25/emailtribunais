@@ -129,8 +129,8 @@ const runCampanhas = async () => {
     }
 };
 
-// Check every hour
-cron.schedule('0 * * * *', () => {
+// Check every 5 minutes
+cron.schedule('*/5 * * * *', () => {
     console.log('Running campaign checker...');
     runCampanhas();
 });
