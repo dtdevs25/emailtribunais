@@ -29,6 +29,7 @@ app.use('/api/configuracoes', require('./routes/configuracoes'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/campanhas', require('./routes/campanhas'));
 app.use('/api/envios', require('./routes/envios'));
+app.use('/api/anexos', require('./routes/anexos'));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'EmailPericia Backend is running' });

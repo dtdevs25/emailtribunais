@@ -6,7 +6,10 @@ const { query } = require('../db/pool');
 router.get('/', async (req, res) => {
   try {
     const result = await query(`
-        SELECT c.*, t.assunto, t.corpo_html 
+        SELECT c.*, t.assunto, t.corpo_html,
+        (SELECT json_agg(json_build_object('id', a.id, 'nome', a.nome))
+         FROM campanha_anexos ca JOIN anexos a ON ca.anexo_id = a.id 
+         WHERE ca.campanha_id = c.id) as anexos
         FROM campanhas c 
         LEFT JOIN templates t ON c.template_id = t.id 
         ORDER BY c.created_at DESC
@@ -19,7 +22,7 @@ router.get('/', async (req, res) => {
 
 // Create campaign & template atomically
 router.post('/', async (req, res) => {
-  const { nome, assunto, corpo_html, intervalo_dias } = req.body;
+  const { nome, assunto, corpo_html, intervalo_dias, anexo_ids } = req.body;
   try {
     // 1. Create Template
     const tplRes = await query(
@@ -33,6 +36,14 @@ router.post('/', async (req, res) => {
       'INSERT INTO campanhas (nome, template_id, intervalo_dias, ativa, proxima_execucao) VALUES ($1, $2, $3, true, NOW()) RETURNING *',
       [nome, templateId, intervalo_dias || 15]
     );
+    const campanhaId = campRes.rows[0].id;
+
+    // 3. Link Anexos IF any
+    if (anexo_ids && Array.isArray(anexo_ids)) {
+      for (const anid of anexo_ids) {
+        await query('INSERT INTO campanha_anexos (campanha_id, anexo_id) VALUES ($1, $2)', [campanhaId, anid]);
+      }
+    }
 
     res.status(201).json(campRes.rows[0]);
   } catch (err) {

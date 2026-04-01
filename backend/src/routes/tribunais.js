@@ -64,7 +64,7 @@ router.post('/bulk', async (req, res) => {
     for (const t of tribunais) {
       if (t.nome && t.email) {
         const result = await query(
-          'INSERT INTO tribunais (nome, estado, email, tipo) VALUES ($1, $2, $3, $4) RETURNING *',
+          'INSERT INTO tribunais (nome, estado, email, tipo) VALUES ($1, $2, $3, $4) ON CONFLICT (nome, estado) DO UPDATE SET email = EXCLUDED.email RETURNING *',
           [t.nome, t.estado || 'SP', t.email, t.tipo || 'TJ']
         );
         inserted.push(result.rows[0]);

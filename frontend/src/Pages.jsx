@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-    LayoutDashboard, Gavel, Mail, Calendar, 
+    LayoutDashboard, Gavel, Mail, Calendar, Paperclip, 
     History, TrendingUp, CheckCircle, Clock, AlertCircle, X, Plus, UploadCloud
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -24,7 +24,7 @@ export const Dashboard = () => {
                 </div>
             </div>
 
-            <div className="stats-grid">
+            <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
                 <div className="card stat-card" style={{ borderLeft: '4px solid var(--primary)' }}>
                     <div className="stat-icon-box" style={{ background: 'var(--primary-glow)', color: 'var(--primary)' }}>
                         <TrendingUp size={24} />
@@ -54,8 +54,9 @@ export const Dashboard = () => {
                         <div className="stat-value">{sRate}%</div>
                     </div>
                 </div>
-
-                <div className="card stat-card" style={{ borderLeft: '4px solid var(--warning)' }}>
+            </div>
+            <div style={{ marginBottom: '2rem' }}>
+                <div className="card stat-card" style={{ borderLeft: '4px solid var(--warning)', display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                     <div className="stat-icon-box" style={{ background: 'var(--warning-bg)', color: 'var(--warning)' }}>
                         <Calendar size={24} />
                     </div>
@@ -119,7 +120,10 @@ export const Tribunais = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const lines = bulkText.split('\n').filter(l => l.trim().length > 0);
+            const lines = bulkText.split('\n')
+                .map(l => l.trim())
+                .filter(l => l.length > 0 && !l.startsWith('--') && l.match(/[;,|\t]/));
+            
             const records = lines.map(line => {
                 const parts = line.split(/[;,|\t]/);
                 return {
@@ -229,6 +233,7 @@ export const Tribunais = () => {
 export const Campanhas = () => {
     const [campanhas, setCampanhas] = useState([]);
     const [novaCampanha, setNovaCampanha] = useState({nome: '', assunto: '', corpo_html: '', intervalo_dias: 15});
+    const [filesToUpload, setFilesToUpload] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const loadData = () => {
@@ -240,12 +245,28 @@ export const Campanhas = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            await api.post('/campanhas', novaCampanha);
+            const anexo_ids = [];
+            // Handle Anexos (file uploads) before creating campaign
+            if (filesToUpload.length > 0) {
+                toast.success(`Fazendo upload de ${filesToUpload.length} anexos...`);
+                for(const file of filesToUpload) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const fileRes = await api.post('/anexos/upload', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    anexo_ids.push(fileRes.data.id);
+                }
+            }
+
+            // Create Campaign
+            await api.post('/campanhas', { ...novaCampanha, anexo_ids });
             toast.success('Regra e Campanha programada com sucesso!');
             setNovaCampanha({nome: '', assunto: '', corpo_html: '', intervalo_dias: 15});
+            setFilesToUpload([]);
             loadData();
         } catch(err) {
-            toast.error('Erro ao programar campanha.');
+            toast.error('Erro ao programar campanha e anexos.');
         } finally {
             setLoading(false);
         }
@@ -275,7 +296,7 @@ export const Campanhas = () => {
                         </div>
 
                         <div className="form-group">
-                            <label className="form-label">Conteúdo do E-mail (HTML ACEITO)</label>
+                            <label className="form-label">Conteúdo Dinâmico (HTML ACEITO)</label>
                             <textarea 
                                 className="form-input" 
                                 style={{ height: '220px', fontFamily: 'monospace', fontSize: '0.85rem' }} 
@@ -284,11 +305,21 @@ export const Campanhas = () => {
                                 onChange={e=>setNovaCampanha({...novaCampanha, corpo_html: e.target.value})}
                                 placeholder="<p>Prezado Excelentíssimo Senhor Juiz da {{nome_tribunal}},</p><p>Gostaria de me colocar à disposição para nomeações.</p>"
                             ></textarea>
-                            <small style={{color:'var(--text-muted)'}}>Variáveis que você pode usar: <code style={{color:'var(--primary)'}}>{`{{nome_tribunal}}`}</code>, <code style={{color:'var(--primary)'}}>{`{{estado}}`}</code></small>
+                            <small style={{color:'var(--text-muted)'}}>Variáveis Mágicas: Digite <strong style={{color:'var(--primary)'}}>{`{{nome_tribunal}}`}</strong> no texto para citar o nome dinamicamente para cada juízo!</small>
                         </div>
 
                         <div className="form-group">
-                            <label className="form-label">Intervalo de Re-tentativas (Dias para próximo disparo)</label>
+                            <label className="form-label">Anexar Documentos/Currículos (.pdf, .doc)</label>
+                            <input 
+                                type="file" 
+                                multiple 
+                                className="form-input" 
+                                onChange={(e) => setFilesToUpload(Array.from(e.target.files))}
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Repetição Automática (Dias para cobrar/reenviar)</label>
                             <input type="number" className="form-input" min="1" value={novaCampanha.intervalo_dias} onChange={e=>setNovaCampanha({...novaCampanha, intervalo_dias: e.target.value})} />
                         </div>
 
@@ -306,9 +337,17 @@ export const Campanhas = () => {
                             <div key={c.id} style={{padding:'1.25rem', background:'var(--bg-main)', borderRadius:'var(--radius-md)', border:'1px solid var(--border-light)'}}>
                                 <strong style={{color: 'var(--text-main)', display:'block', marginBottom: '0.25rem'}}>{c.nome}</strong>
                                 <div style={{fontSize:'0.85rem', color:'var(--text-muted)'}}>{c.assunto}</div>
+                                
+                                {c.anexos && c.anexos[0] && c.anexos[0].nome !== null && (
+                                    <div style={{marginTop: '0.75rem', fontSize: '0.8rem', color: 'var(--secondary)'}}>
+                                        <Paperclip size={14} style={{verticalAlign: 'middle', marginRight: '4px'}}/>
+                                        {c.anexos.map(a => a.nome).join(', ')}
+                                    </div>
+                                )}
+                                
                                 <div style={{marginTop:'1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                                     <span className="badge badge-success">Em Operação</span>
-                                    <span style={{fontSize: '0.75rem', color: 'var(--text-light)'}}>A cada {c.intervalo_dias}d</span>
+                                    <span style={{fontSize: '0.75rem', color: 'var(--text-light)'}}>Ciclo: a cada {c.intervalo_dias} dias</span>
                                 </div>
                             </div>
                         ))}
