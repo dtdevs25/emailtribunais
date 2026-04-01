@@ -317,7 +317,7 @@ export const Tribunais = () => {
             {/* Confirmation Delete Modal */}
             {deleteConfirm && (
                 <div className="modal-overlay" onClick={() => setDeleteConfirm(null)} style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)' }}>
-                    <div className="modal-content animate-fade" style={{ maxWidth: 420, border: '1px solid rgba(239, 68, 68, 0.2)', padding: '2.5rem', borderRadius: '1.25rem' }} onClick={e => e.stopPropagation()}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 420, border: '1px solid rgba(239, 68, 68, 0.2)', padding: '2.5rem', borderRadius: '1.25rem', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
                         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
                             <div style={{ width: 64, height: 64, background: 'var(--error-bg)', color: 'var(--error)', borderRadius: '50%', display: 'grid', placeItems: 'center', margin: '0 auto 1.5rem', boxShadow: '0 0 40px rgba(239, 68, 68, 0.15)' }}>
                                 <Trash2 size={32} />
@@ -342,7 +342,7 @@ export const Tribunais = () => {
 
             {isModalOpen && (
                 <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
-                    <div className="modal-content animate-fade" style={{ maxWidth: 500, padding: '2.5rem', borderRadius: '1.25rem' }} onClick={e => e.stopPropagation()}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 500, padding: '2.5rem', borderRadius: '1.25rem', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
                         <div className="modal-header" style={{ marginBottom: '1.5rem', paddingBottom: '1rem' }}>
                             <div>
                                 <h2 style={{fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-main)'}}>
@@ -382,7 +382,7 @@ export const Tribunais = () => {
             {/* Edit Tribunal Modal */}
             {editTribunal && (
                 <div className="modal-overlay" onClick={() => setEditTribunal(null)} style={{ background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(20px)' }}>
-                    <div className="modal-content animate-fade" style={{ maxWidth: 450, padding: '2.5rem', boxShadow: '0 40px 100px rgba(0,0,0,0.1)', borderRadius: '1.25rem' }} onClick={e => e.stopPropagation()}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 450, padding: '2.5rem', boxShadow: '0 40px 100px rgba(0,0,0,0.1)', borderRadius: '1.25rem', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                 <div style={{ width: 48, height: 48, background: 'var(--primary-glow)', color: 'var(--primary)', borderRadius: '12px', display: 'grid', placeItems: 'center' }}>
@@ -614,28 +614,24 @@ export const Campanhas = () => {
 
             {/* Preview Modal */}
             {previewCampanha && (
-                <div className="modal-overlay" onClick={() => setPreviewCampanha(null)}>
-                    <div className="modal-content animate-fade" style={{maxWidth: 750, width: '95vw'}} onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
+                <div className="modal-overlay" onClick={() => setPreviewCampanha(null)} style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)' }}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 700, padding: '2rem', borderRadius: '1.25rem', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header" style={{ marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--border-light)' }}>
                             <div>
-                                <h2 style={{fontSize: '1.15rem', display:'flex', alignItems:'center', gap:'0.5rem'}}>
-                                    <Mail size={20} color="var(--primary)" /> Preview: {previewCampanha.nome}
+                                <h2 style={{fontSize: '1.25rem', display:'flex', alignItems:'center', gap:'0.5rem', color: 'var(--text-main)'}}>
+                                    <Mail size={20} color="var(--primary)" /> Emulação do Envio ({previewCampanha.nome})
                                 </h2>
-                                <p style={{fontSize:'0.82rem', color:'var(--text-muted)', marginTop:'0.2rem'}}>
-                                    As variáveis <strong style={{color:'var(--primary)'}}>{'{{nome_tribunal}}'}</strong> são substituídas por exemplo abaixo.
-                                </p>
                             </div>
                             <button className="modal-close" onClick={() => setPreviewCampanha(null)}><X size={20}/></button>
                         </div>
 
                         {/* Email Header Preview */}
-                        <div style={{background:'var(--bg-muted)', borderRadius:'var(--radius-md)', padding:'1rem', marginBottom:'1rem', fontSize:'0.85rem'}}>
-                            <div><strong>De:</strong> Daniel Pereira dos Santos - Perito Judicial &lt;{process.env.SMTP_USER || 'contato@ehspro.com.br'}&gt;</div>
-                            <div><strong>Para:</strong> secretaria@vara-do-trabalho-de-teste.jus.br</div>
-                            <div><strong>Assunto:</strong> {previewCampanha.assunto}</div>
+                        <div style={{background:'var(--bg-muted)', borderRadius:'var(--radius-md)', padding:'1rem', marginBottom:'1rem', fontSize:'0.85rem', display: 'grid', gridTemplateColumns: '1fr', gap: '0.25rem'}}>
+                            <div><strong style={{color: 'var(--text-main)'}}>Remetente:</strong> Daniel Pereira dos Santos (Perito Judicial)</div>
+                            <div><strong style={{color: 'var(--text-main)'}}>Assunto Principal:</strong> {previewCampanha.assunto}</div>
                             {previewCampanha.anexos && previewCampanha.anexos.filter(a=>a).length > 0 && (
-                                <div style={{marginTop:'0.5rem', color:'var(--secondary)'}}>
-                                    <Paperclip size={13} style={{verticalAlign:'middle'}}/> <strong>Anexos:</strong> {previewCampanha.anexos.filter(a=>a).map(a=>a.nome).join(', ')}
+                                <div style={{color:'var(--secondary)', fontWeight: 600}}>
+                                    <Paperclip size={13} style={{verticalAlign:'middle'}}/> Anexado: {previewCampanha.anexos.filter(a=>a).map(a=>a.nome).join(', ')}
                                 </div>
                             )}
                         </div>
@@ -643,35 +639,25 @@ export const Campanhas = () => {
                         {/* Email Body Preview */}
                         <div style={{
                             border: '1px solid var(--border-light)', borderRadius:'var(--radius-md)',
-                            padding: '1.5rem', background: '#fff', maxHeight: 380, overflowY: 'auto',
-                            fontSize: '0.9rem'
+                            padding: '1.5rem', background: '#fff', height: 260, overflowY: 'auto',
+                            fontSize: '0.9rem', color: '#111'
                         }}
                             dangerouslySetInnerHTML={{ __html: getPreviewHtml(previewCampanha) }}
                         />
 
                         {/* Test Email */}
-                        <div style={{marginTop:'1.5rem', padding:'1rem', background:'#fffbeb', borderRadius:'var(--radius-md)', border:'1px solid #fcd34d'}}>
-                            <p style={{fontWeight:600, marginBottom:'0.75rem', color:'#92400e', fontSize:'0.9rem'}}>
-                                📧 Enviar E-mail de Teste (sem enviar aos tribunais)
-                            </p>
-                            <div style={{display:'flex', gap:'0.75rem', alignItems:'center', flexWrap:'wrap'}}>
-                                <input
-                                    type="email"
-                                    className="form-input"
-                                    style={{flex:1, minWidth:220}}
-                                    value={emailTeste}
-                                    onChange={e => setEmailTeste(e.target.value)}
-                                    placeholder="seu-email@exemplo.com"
-                                />
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={handleSendTest}
-                                    disabled={sendingTest || !emailTeste}
-                                    style={{whiteSpace:'nowrap'}}
-                                >
-                                    {sendingTest ? 'Enviando...' : '🚀 Enviar Teste'}
-                                </button>
-                            </div>
+                        <div style={{marginTop:'1.25rem', display:'flex', gap:'0.75rem', alignItems:'center'}}>
+                            <input
+                                type="email"
+                                className="form-input"
+                                style={{flex:1, padding: '0.85rem'}}
+                                value={emailTeste}
+                                onChange={e => setEmailTeste(e.target.value)}
+                                placeholder="E-mail receptor do teste"
+                            />
+                            <button className="btn btn-primary" onClick={handleSendTest} disabled={sendingTest || !emailTeste} style={{padding: '0.85rem 1.5rem', whiteSpace:'nowrap'}}>
+                                {sendingTest ? 'Disparando...' : '🚀 Testar Fluxo de Envio'}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -679,48 +665,49 @@ export const Campanhas = () => {
 
             {/* Create Form Modal */}
             {showForm && (
-                <div className="modal-overlay" onClick={() => setShowForm(false)}>
-                    <div className="modal-content animate-fade" style={{maxWidth: 700, width: '95vw'}} onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h2 style={{fontSize:'1.15rem', display:'flex', alignItems:'center', gap:'0.5rem'}}>
-                                <Plus size={20} color="var(--primary)"/> Nova Campanha
+                <div className="modal-overlay" onClick={() => setShowForm(false)} style={{ background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)' }}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 750, padding: '2rem 2.5rem', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header" style={{ marginBottom: '1.5rem' }}>
+                            <h2 style={{fontSize:'1.25rem', display:'flex', alignItems:'center', gap:'0.5rem', color: 'var(--text-main)'}}>
+                                <Plus size={20} color="var(--primary)"/> Cadastro de Campanha
                             </h2>
                             <button className="modal-close" onClick={() => setShowForm(false)}><X size={20}/></button>
                         </div>
-                        <form onSubmit={handleCreate}>
-                            <div className="form-group">
-                                <label className="form-label">Título da Campanha (Interno)</label>
-                                <input className="form-input" required value={novaCampanha.nome} onChange={e=>setNovaCampanha({...novaCampanha, nome: e.target.value})} placeholder="Ex: Disparo Geral - Varas SP" />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Assunto do E-mail</label>
-                                <input className="form-input" required value={novaCampanha.assunto} onChange={e=>setNovaCampanha({...novaCampanha, assunto: e.target.value})} placeholder="Apresentação de Serviços - Perito Judicial - Daniel Santos" />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Conteúdo HTML do E-mail</label>
-                                <textarea className="form-input" style={{height:'200px', fontFamily:'monospace', fontSize:'0.82rem'}} required value={novaCampanha.corpo_html} onChange={e=>setNovaCampanha({...novaCampanha, corpo_html: e.target.value})} placeholder={`<p>Prezados da <strong>{{nome_tribunal}}</strong>,</p>`}></textarea>
-                                <small style={{color:'var(--primary)', fontWeight:500}}>Use {'{{nome_tribunal}}'} para personalizar automaticamente!</small>
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Anexar Documentos (.pdf, .doc)</label>
-                                <input type="file" multiple className="form-input" onChange={(e) => setFilesToUpload(Array.from(e.target.files))} />
-                            </div>
-                            <div style={{display:'flex', gap:'1rem'}}>
-                                <div className="form-group" style={{flex:1}}>
-                                    <label className="form-label">Data de Início</label>
-                                    <input type="date" className="form-input" required value={novaCampanha.data_inicio} onChange={e=>setNovaCampanha({...novaCampanha, data_inicio: e.target.value})} />
+                        <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1rem' }}>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Identificação (Interno)</label>
+                                    <input className="form-input" style={{ padding: '0.8rem' }} required value={novaCampanha.nome} onChange={e=>setNovaCampanha({...novaCampanha, nome: e.target.value})} placeholder="Ex: Contato Varas SP" />
                                 </div>
-                                <div className="form-group" style={{flex:1}}>
-                                    <label className="form-label">Horário (BRT)</label>
-                                    <input type="time" className="form-input" required value={novaCampanha.hora_inicio} onChange={e=>setNovaCampanha({...novaCampanha, hora_inicio: e.target.value})} />
-                                </div>
-                                <div className="form-group" style={{flex:1}}>
-                                    <label className="form-label">Repetir a cada (dias)</label>
-                                    <input type="number" className="form-input" min="1" value={novaCampanha.intervalo_dias} onChange={e=>setNovaCampanha({...novaCampanha, intervalo_dias: e.target.value})} />
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Tópico do Correspondente (Assunto)</label>
+                                    <input className="form-input" style={{ padding: '0.8rem' }} required value={novaCampanha.assunto} onChange={e=>setNovaCampanha({...novaCampanha, assunto: e.target.value})} placeholder="Apresentação de Serviços" />
                                 </div>
                             </div>
-                            <button type="submit" className="btn btn-primary" style={{width:'100%', padding:'1rem', marginTop:'0.5rem'}} disabled={loading}>
-                                {loading ? 'Processando...' : '🚀 Salvar e Ativar Campanha'}
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                                <label className="form-label" style={{ fontWeight: 600 }}>Markup de Envio (HTML)</label>
+                                <textarea className="form-input" style={{ height:'140px', fontFamily:'monospace', fontSize:'0.82rem', padding: '0.8rem', background: 'var(--bg-main)' }} required value={novaCampanha.corpo_html} onChange={e=>setNovaCampanha({...novaCampanha, corpo_html: e.target.value})} placeholder={`<p>Prezados do <strong>{{nome_tribunal}}</strong>,</p>`}></textarea>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) auto auto 120px', gap: '1rem', alignItems: 'flex-end' }}>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Anexo(s) Opcionais</label>
+                                    <input type="file" multiple className="form-input" style={{ padding: '0.65rem' }} onChange={(e) => setFilesToUpload(Array.from(e.target.files))} />
+                                </div>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Data Limite</label>
+                                    <input type="date" className="form-input" style={{ padding: '0.8rem' }} required value={novaCampanha.data_inicio} onChange={e=>setNovaCampanha({...novaCampanha, data_inicio: e.target.value})} />
+                                </div>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Disparo HH:MM</label>
+                                    <input type="time" className="form-input" style={{ padding: '0.8rem' }} required value={novaCampanha.hora_inicio} onChange={e=>setNovaCampanha({...novaCampanha, hora_inicio: e.target.value})} />
+                                </div>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Ciclo (Dias)</label>
+                                    <input type="number" className="form-input" style={{ padding: '0.8rem' }} min="1" value={novaCampanha.intervalo_dias} onChange={e=>setNovaCampanha({...novaCampanha, intervalo_dias: e.target.value})} />
+                                </div>
+                            </div>
+                            <button type="submit" className="btn btn-primary" style={{ padding: '1.1rem', marginTop: '0.5rem', fontWeight: 600, fontSize: '1.05rem' }} disabled={loading}>
+                                {loading ? 'Carregando Implantação...' : 'Implantar e Ativar Ciclo'}
                             </button>
                         </form>
                     </div>
@@ -729,44 +716,49 @@ export const Campanhas = () => {
 
             {/* Edit Modal */}
             {editCampanha && (
-                <div className="modal-overlay" onClick={() => setEditCampanha(null)}>
-                    <div className="modal-content animate-fade" style={{maxWidth: 700, width: '95vw'}} onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h2 style={{fontSize:'1.15rem', display:'flex', alignItems:'center', gap:'0.5rem'}}>
-                                <Pencil size={20} color="var(--primary)"/> Editar Campanha
+                <div className="modal-overlay" onClick={() => setEditCampanha(null)} style={{ background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)' }}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 750, padding: '2rem 2.5rem', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header" style={{ marginBottom: '1.5rem' }}>
+                            <h2 style={{fontSize:'1.25rem', display:'flex', alignItems:'center', gap:'0.5rem', color: 'var(--text-main)'}}>
+                                <Pencil size={20} color="var(--primary)"/> Editar Carga da Campanha
                             </h2>
                             <button className="modal-close" onClick={() => setEditCampanha(null)}><X size={20}/></button>
                         </div>
-                        <form onSubmit={handleEdit}>
-                            <div className="form-group">
-                                <label className="form-label">Título da Campanha</label>
-                                <input className="form-input" required value={editCampanha.nome} onChange={e=>setEditCampanha({...editCampanha, nome: e.target.value})} />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Assunto do E-mail</label>
-                                <input className="form-input" required value={editCampanha.assunto} onChange={e=>setEditCampanha({...editCampanha, assunto: e.target.value})} />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Conteúdo HTML do E-mail</label>
-                                <textarea className="form-input" style={{height:'220px', fontFamily:'monospace', fontSize:'0.82rem'}} required value={editCampanha.corpo_html} onChange={e=>setEditCampanha({...editCampanha, corpo_html: e.target.value})}></textarea>
-                                <small style={{color:'var(--primary)', fontWeight:500}}>Use {'{{nome_tribunal}}'} para personalizar por juízo!</small>
-                            </div>
-                            <div style={{display:'flex', gap:'1rem'}}>
-                                <div className="form-group" style={{flex:1}}>
-                                    <label className="form-label">Data de Início</label>
-                                    <input type="date" className="form-input" value={editCampanha.data_inicio} onChange={e=>setEditCampanha({...editCampanha, data_inicio: e.target.value})} />
+                        <form onSubmit={handleEdit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1rem' }}>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Identificação</label>
+                                    <input className="form-input" style={{ padding: '0.8rem' }} required value={editCampanha.nome} onChange={e=>setEditCampanha({...editCampanha, nome: e.target.value})} />
                                 </div>
-                                <div className="form-group" style={{flex:1}}>
-                                    <label className="form-label">Horário (BRT)</label>
-                                    <input type="time" className="form-input" value={editCampanha.hora_inicio} onChange={e=>setEditCampanha({...editCampanha, hora_inicio: e.target.value})} />
-                                </div>
-                                <div className="form-group" style={{flex:1}}>
-                                    <label className="form-label">Repetir a cada (dias)</label>
-                                    <input type="number" className="form-input" min="1" value={editCampanha.intervalo_dias} onChange={e=>setEditCampanha({...editCampanha, intervalo_dias: e.target.value})} />
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Tópico (Assunto)</label>
+                                    <input className="form-input" style={{ padding: '0.8rem' }} required value={editCampanha.assunto} onChange={e=>setEditCampanha({...editCampanha, assunto: e.target.value})} />
                                 </div>
                             </div>
-                            <button type="submit" className="btn btn-primary" style={{width:'100%', padding:'1rem', marginTop:'0.5rem'}}>
-                                💾 Salvar Alterações
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                                <label className="form-label" style={{ fontWeight: 600 }}>Markup (HTML)</label>
+                                <textarea className="form-input" style={{ height:'140px', fontFamily:'monospace', fontSize:'0.82rem', padding: '0.8rem', background: 'var(--bg-main)' }} required value={editCampanha.corpo_html} onChange={e=>setEditCampanha({...editCampanha, corpo_html: e.target.value})}></textarea>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) auto auto 120px', gap: '1rem', alignItems: 'flex-end' }}>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    {/* Placeholder column to align the grid 1:1 with form mapping fields naturally */}
+                                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Anexos editados pelo painel backend caso existam previamente.</p>
+                                </div>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Nova Data</label>
+                                    <input type="date" className="form-input" style={{ padding: '0.8rem' }} value={editCampanha.data_inicio} onChange={e=>setEditCampanha({...editCampanha, data_inicio: e.target.value})} />
+                                </div>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Enviará HH:MM</label>
+                                    <input type="time" className="form-input" style={{ padding: '0.8rem' }} value={editCampanha.hora_inicio} onChange={e=>setEditCampanha({...editCampanha, hora_inicio: e.target.value})} />
+                                </div>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Ciclo (Dias)</label>
+                                    <input type="number" className="form-input" style={{ padding: '0.8rem' }} min="1" value={editCampanha.intervalo_dias} onChange={e=>setEditCampanha({...editCampanha, intervalo_dias: e.target.value})} />
+                                </div>
+                            </div>
+                            <button type="submit" className="btn btn-primary" style={{ padding: '1.1rem', marginTop: '0.5rem', fontWeight: 600, fontSize: '1.05rem' }}>
+                                Aplicar Regras da Campanha
                             </button>
                         </form>
                     </div>
