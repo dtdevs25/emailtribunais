@@ -25,43 +25,43 @@ export const Dashboard = () => {
             </div>
 
             <div className="stats-grid">
-                <div className="card stat-card" style={{ borderLeft: '4px solid var(--primary)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div className="stat-icon-box" style={{ background: 'var(--primary-glow)', color: 'var(--primary)', width: 48, height: 48, borderRadius: 12, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                <div className="card stat-card">
+                    <div className="stat-icon-box" style={{ background: 'var(--primary-glow)', color: 'var(--primary)' }}>
                         <TrendingUp size={24} />
                     </div>
                     <div>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>Total Enviados</div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{stats.totalEnvios}</div>
+                        <div className="stat-label">Total Enviados</div>
+                        <div className="stat-value">{stats.totalEnvios}</div>
                     </div>
                 </div>
                 
-                <div className="card stat-card" style={{ borderLeft: '4px solid var(--secondary)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div className="stat-icon-box" style={{ background: 'rgba(14, 165, 233, 0.1)', color: 'var(--secondary)', width: 48, height: 48, borderRadius: 12, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                <div className="card stat-card">
+                    <div className="stat-icon-box" style={{ background: 'rgba(14, 165, 233, 0.1)', color: 'var(--secondary)' }}>
                         <Gavel size={24} />
                     </div>
                     <div>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>VTs Cadastradas</div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{stats.totalTribunais}</div>
+                        <div className="stat-label">VTs Cadastradas</div>
+                        <div className="stat-value">{stats.totalTribunais}</div>
                     </div>
                 </div>
 
-                <div className="card stat-card" style={{ borderLeft: '4px solid var(--success)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div className="stat-icon-box" style={{ background: 'var(--success-bg)', color: 'var(--success)', width: 48, height: 48, borderRadius: 12, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                <div className="card stat-card">
+                    <div className="stat-icon-box" style={{ background: 'var(--success-bg)', color: 'var(--success)' }}>
                         <CheckCircle size={24} />
                     </div>
                     <div>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>Taxa de Sucesso</div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{sRate}%</div>
+                        <div className="stat-label">Taxa de Sucesso</div>
+                        <div className="stat-value">{sRate}%</div>
                     </div>
                 </div>
 
-                <div className="card stat-card" style={{ borderLeft: '4px solid var(--warning)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div className="stat-icon-box" style={{ background: 'var(--warning-bg)', color: 'var(--warning)', width: 48, height: 48, borderRadius: 12, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                <div className="card stat-card">
+                    <div className="stat-icon-box" style={{ background: 'var(--warning-bg)', color: 'var(--warning)' }}>
                         <Calendar size={24} />
                     </div>
                     <div>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>Campanhas</div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{stats.totalCampanhas}</div>
+                        <div className="stat-label">Campanhas Ativas</div>
+                        <div className="stat-value">{stats.totalCampanhas}</div>
                     </div>
                 </div>
             </div>
