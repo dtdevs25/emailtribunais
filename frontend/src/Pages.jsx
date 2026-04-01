@@ -238,6 +238,7 @@ export const Tribunais = () => {
     };
 
     return (
+        <>
         <div className="animate-fade">
             <div className="page-header">
                 <div>
@@ -289,11 +290,12 @@ export const Tribunais = () => {
                     </table>
                 </div>
             </div>
+        </div>
 
             {/* Confirmation Delete Modal */}
             {deleteConfirm && (
                 <div className="modal-overlay" onClick={() => setDeleteConfirm(null)} style={{ background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(16px)' }}>
-                    <div className="modal-content animate-fade" style={{ maxWidth: 600, border: '1px solid rgba(239, 68, 68, 0.2)', padding: '4rem' }} onClick={e => e.stopPropagation()}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 600, border: '1px solid rgba(239, 68, 68, 0.2)', padding: 'clamp(2rem, 5vw, 4rem)' }} onClick={e => e.stopPropagation()}>
                         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
                             <div style={{ width: 80, height: 80, background: 'var(--error-bg)', color: 'var(--error)', borderRadius: '50%', display: 'grid', placeItems: 'center', margin: '0 auto 2rem', boxShadow: '0 0 40px rgba(239, 68, 68, 0.15)' }}>
                                 <Trash2 size={40} />
@@ -369,7 +371,7 @@ export const Tribunais = () => {
             {/* Edit Tribunal Modal */}
             {editTribunal && (
                 <div className="modal-overlay" onClick={() => setEditTribunal(null)} style={{ background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(20px)' }}>
-                    <div className="modal-content animate-fade" style={{ maxWidth: 800, padding: '4rem', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }} onClick={e => e.stopPropagation()}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 800, padding: 'clamp(2rem, 5vw, 4rem)', boxShadow: '0 40px 100px rgba(0,0,0,0.1)', width: '95vw' }} onClick={e => e.stopPropagation()}>
                         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
                             <div style={{ width: 64, height: 64, background: 'var(--primary-glow)', color: 'var(--primary)', borderRadius: '16px', display: 'grid', placeItems: 'center', margin: '0 auto 1.5rem' }}>
                                 <Pencil size={32} />
@@ -405,8 +407,7 @@ export const Tribunais = () => {
                     </div>
                 </div>
             )}
-        </div>
-
+        </>
     );
 };
 
@@ -516,6 +517,7 @@ export const Campanhas = () => {
     };
 
     return (
+        <>
         <div className="animate-fade">
             <div className="page-header">
                 <div>
@@ -601,6 +603,7 @@ export const Campanhas = () => {
                     </table>
                 </div>
             </div>
+        </div>
 
             {/* Preview Modal */}
             {previewCampanha && (
@@ -762,7 +765,7 @@ export const Campanhas = () => {
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 };
 
