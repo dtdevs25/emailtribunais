@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
     LayoutDashboard, Gavel, Mail, Calendar, Paperclip, 
-    History, TrendingUp, CheckCircle, Clock, AlertCircle, X, Plus, UploadCloud, Pencil
+    History, TrendingUp, CheckCircle, Clock, AlertCircle, X, Plus, UploadCloud, Pencil, Trash2
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from './api';
@@ -159,6 +159,7 @@ export const Tribunais = () => {
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editTribunal, setEditTribunal] = useState(null);
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
 
     const loadData = () => {
         api.get('/tribunais').then(res => setTribunais(res.data)).catch(() => toast.error('Erro ao listar tribunais'));
@@ -177,14 +178,17 @@ export const Tribunais = () => {
         reader.readAsText(file);
     };
 
-    const handleDelete = async (id) => {
-        if (!confirm('Deseja realmente remover este registro?')) return;
+    const handleDelete = async (t) => {
+        setLoading(true);
         try {
-            await api.delete(`/tribunais/${id}`);
-            toast.success('Tribunal removido com sucesso!');
+            await api.delete(`/tribunais/${t.id}`);
+            toast.success('Tribunal removido permanentemente!');
+            setDeleteConfirm(null);
             loadData();
         } catch (err) {
             toast.error('Erro ao remover tribunal');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -263,12 +267,12 @@ export const Tribunais = () => {
                                     <td style={{color: 'var(--text-muted)'}}>{t.email}</td>
                                     <td><span className="badge badge-warning">{t.estado}</span></td>
                                     <td>
-                                        <div style={{display:'flex', gap:'0.5rem', justifyContent:'center'}}>
-                                            <button className="btn-icon btn-edit" onClick={() => setEditTribunal(t)}>
-                                                <Pencil size={16}/>
+                                        <div style={{display:'flex', gap:'1rem', justifyContent:'center'}}>
+                                            <button className="btn-icon btn-edit" title="Editar informações" onClick={() => setEditTribunal(t)}>
+                                                <Pencil size={18}/>
                                             </button>
-                                            <button className="btn-icon btn-delete" onClick={() => handleDelete(t.id)}>
-                                                <X size={16}/>
+                                            <button className="btn-icon btn-delete" title="Excluir tribunal" onClick={() => setDeleteConfirm(t)}>
+                                                <Trash2 size={18}/>
                                             </button>
                                         </div>
                                     </td>
@@ -285,6 +289,32 @@ export const Tribunais = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Confirmation Delete Modal */}
+            {deleteConfirm && (
+                <div className="modal-overlay" onClick={() => setDeleteConfirm(null)}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 500 }} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header" style={{ borderBottom: 'none' }}>
+                            <h2 style={{ color: 'var(--error)' }}>⚠ Confirmar Exclusão</h2>
+                            <button className="modal-close" onClick={() => setDeleteConfirm(null)}><X size={20}/></button>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: '1rem 0 2rem' }}>
+                            <p style={{ fontSize: '1.1rem', color: 'var(--text-main)', marginBottom: '0.8rem' }}>
+                                Você está prestes a excluir <strong>{deleteConfirm.nome}</strong>.
+                            </p>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+                                Esta ação <span style={{ color: 'var(--error)', fontWeight: 700 }}>não pode ser desfeita</span> e removerá todos os vínculos desta Vara/Tribunal.
+                            </p>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <button className="btn btn-outline" onClick={() => setDeleteConfirm(null)}>Cancelar</button>
+                            <button className="btn btn-primary" style={{ background: 'var(--error)', borderColor: 'var(--error)' }} onClick={() => handleDelete(deleteConfirm)} disabled={loading}>
+                                {loading ? 'Excluindo...' : '🗑 Confirmar Exclusão'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {isModalOpen && (
                 <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
