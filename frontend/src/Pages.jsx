@@ -5,6 +5,9 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from './api';
+import { 
+    PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer 
+} from 'recharts';
 
 export const Dashboard = () => {
     const [stats, setStats] = useState({ totalEnvios: 0, enviosSucesso: 0, totalCampanhas: 0, totalTribunais: 0, historico: [] });
@@ -14,23 +17,31 @@ export const Dashboard = () => {
     }, []);
 
     const sRate = stats.totalEnvios > 0 ? ((stats.enviosSucesso / stats.totalEnvios) * 100).toFixed(1) : 0;
+    const failures = stats.totalEnvios - stats.enviosSucesso;
+
+    const pieData = [
+        { name: 'Sucesso', value: stats.enviosSucesso },
+        { name: 'Falhas', value: failures > 0 ? failures : 0 }
+    ];
+
+    const COLORS = ['#10b981', '#ef4444'];
 
     return (
         <div className="animate-fade">
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">Central de Controle</h1>
-                    <p className="page-subtitle">Visão geral do sistema de nomeações.</p>
+                    <h1 className="page-title">Painel de Controle</h1>
+                    <p className="page-subtitle">Acompanhe seus disparos e resultados em tempo real.</p>
                 </div>
             </div>
 
-            <div className="stats-grid">
+            <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
                 <div className="card stat-card">
                     <div className="stat-icon-box" style={{ background: 'var(--primary-glow)', color: 'var(--primary)' }}>
-                        <TrendingUp size={24} />
+                        <Mail size={24} />
                     </div>
                     <div>
-                        <div className="stat-label">Total Enviados</div>
+                        <div className="stat-label">Total Enviado</div>
                         <div className="stat-value">{stats.totalEnvios}</div>
                     </div>
                 </div>
@@ -40,35 +51,14 @@ export const Dashboard = () => {
                         <Gavel size={24} />
                     </div>
                     <div>
-                        <div className="stat-label">VTs Cadastradas</div>
+                        <div className="stat-label">Tribunais Cadastrados</div>
                         <div className="stat-value">{stats.totalTribunais}</div>
                     </div>
                 </div>
 
                 <div className="card stat-card">
-                    <div className="stat-icon-box" style={{ background: 'var(--success-bg)', color: 'var(--success)' }}>
-                        <CheckCircle size={24} />
-                    </div>
-                    <div>
-                        <div className="stat-label">Taxa de Sucesso</div>
-                        <div className="stat-value">{sRate}%</div>
-                    </div>
-                </div>
-
-                <div className="card stat-card">
                     <div className="stat-icon-box" style={{ background: 'var(--warning-bg)', color: 'var(--warning)' }}>
-                        <Calendar size={24} />
-                    </div>
-                    <div>
-                        <div className="stat-label">Campanhas Ativas</div>
-                        <div className="stat-value">{stats.totalCampanhas}</div>
-                    </div>
-                </div>
-            </div>
-            <div style={{ marginBottom: '2rem' }}>
-                <div className="card stat-card" style={{ borderLeft: '4px solid var(--warning)', display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                    <div className="stat-icon-box" style={{ background: 'var(--warning-bg)', color: 'var(--warning)' }}>
-                        <Calendar size={24} />
+                        <TrendingUp size={24} />
                     </div>
                     <div>
                         <div className="stat-label">Campanhas Ativas</div>
@@ -77,7 +67,55 @@ export const Dashboard = () => {
                 </div>
             </div>
 
-            <div className="card">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
+                <div className="card" style={{ padding: '2.5rem', minHeight: 450, display: 'flex', flexDirection: 'column' }}>
+                    <h3 style={{ marginBottom: '2rem', fontSize: '1.1rem', fontWeight: 600 }}>Eficiência de Entrega</h3>
+                    <div style={{ flex: 1, minHeight: 300 }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={pieData}
+                                    innerRadius={75}
+                                    outerRadius={100}
+                                    paddingAngle={10}
+                                    dataKey="value"
+                                >
+                                    {pieData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend verticalAlign="bottom" height={36}/>
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+                        <div style={{ fontSize: '2.8rem', fontWeight: 800, color: 'var(--success)', letterSpacing: '-1px' }}>{sRate}%</div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 500 }}>Taxa de Sucesso Total</div>
+                    </div>
+                </div>
+
+                <div className="card" style={{ padding: '2.5rem', minHeight: 450, display: 'flex', flexDirection: 'column' }}>
+                    <h3 style={{ marginBottom: '2rem', fontSize: '1.1rem', fontWeight: 600 }}>Volume por Campanha</h3>
+                    <div style={{ flex: 1, minHeight: 300 }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={stats.historico.slice(0, 10).reverse()}>
+                                <XAxis dataKey="campanha" hide />
+                                <YAxis hide />
+                                <Tooltip 
+                                    cursor={{fill: 'var(--bg-muted)', opacity: 0.4}} 
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                                />
+                                <Bar dataKey="id" fill="var(--primary)" radius={[6, 6, 0, 0]} name="Volume" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <p style={{ textAlign: 'center', color: 'var(--text-light)', fontSize: '0.85rem', marginTop: '1.5rem' }}>
+                        Dados extraídos dos seus disparos mais recentes.
+                    </p>
+                </div>
+            </div>
+            <div className="card" style={{ marginTop: '2rem' }}>
                 <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 600 }}>Envios Recentes / Acompanhamento</h3>
                 <div className="table-wrapper">
                     <table>
@@ -99,8 +137,8 @@ export const Dashboard = () => {
                                     <td>{h.campanha || h.assunto}</td>
                                     <td>
                                         {h.status === 'enviado' ? 
-                                            <span className="badge badge-success"><CheckCircle size={14}/> SUCESSO</span> :
-                                            <span className="badge badge-error"><X size={14}/> FALHA</span>
+                                            <span className="badge badge-success" style={{display:'flex', alignItems:'center', gap:4, width:'fit-content'}}><CheckCircle size={14}/> SUCESSO</span> :
+                                            <span className="badge badge-error" style={{display:'flex', alignItems:'center', gap:4, width:'fit-content'}}><X size={14}/> FALHA</span>
                                         }
                                     </td>
                                     <td style={{color: 'var(--text-light)', fontSize: '0.8rem'}}>Aguardando IMAP</td>
@@ -113,6 +151,7 @@ export const Dashboard = () => {
         </div>
     );
 };
+
 
 export const Tribunais = () => {
     const [tribunais, setTribunais] = useState([]);
