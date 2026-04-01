@@ -429,6 +429,7 @@ export const Campanhas = () => {
     const [showForm, setShowForm] = useState(false);
     const [previewCampanha, setPreviewCampanha] = useState(null);
     const [editCampanha, setEditCampanha] = useState(null);
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [sendingTest, setSendingTest] = useState(false);
     const [emailTeste, setEmailTeste] = useState('daniel-ehs@outlook.com');
 
@@ -491,11 +492,11 @@ export const Campanhas = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Remover esta campanha permanentemente?')) return;
+    const handleDelete = async (campanha) => {
         try {
-            await api.delete(`/campanhas/${id}`);
+            await api.delete(`/campanhas/${campanha.id}`);
             toast.success('Campanha removida.');
+            setDeleteConfirm(null);
             loadData();
         } catch(err) {
             toast.error('Erro ao remover campanha.');
@@ -594,8 +595,8 @@ export const Campanhas = () => {
                                             <button className="btn-icon btn-edit" title="Editar Campanha" onClick={() => setEditCampanha({ ...c, assunto: c.assunto || '', corpo_html: c.corpo_html || '', data_inicio: c.proxima_execucao ? new Date(c.proxima_execucao).toISOString().split('T')[0] : new Date().toISOString().split('T')[0], hora_inicio: c.proxima_execucao ? new Date(c.proxima_execucao).toTimeString().slice(0,5) : '08:00' })}>
                                                 <Pencil size={16}/>
                                             </button>
-                                            <button className="btn-icon btn-delete" title="Excluir Campanha" onClick={() => handleDelete(c.id)}>
-                                                <X size={16}/>
+                                            <button className="btn-icon btn-delete" title="Excluir Campanha" onClick={() => setDeleteConfirm(c)}>
+                                                <Trash2 size={16}/>
                                             </button>
                                         </div>
                                     </td>
@@ -615,7 +616,7 @@ export const Campanhas = () => {
             {/* Preview Modal */}
             {previewCampanha && (
                 <div className="modal-overlay" onClick={() => setPreviewCampanha(null)} style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)' }}>
-                    <div className="modal-content animate-fade" style={{ maxWidth: 700, padding: '2rem', borderRadius: '1.25rem', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 700, padding: '1.5rem', borderRadius: '1.25rem' }} onClick={e => e.stopPropagation()}>
                         <div className="modal-header" style={{ marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--border-light)' }}>
                             <div>
                                 <h2 style={{fontSize: '1.25rem', display:'flex', alignItems:'center', gap:'0.5rem', color: 'var(--text-main)'}}>
@@ -639,7 +640,7 @@ export const Campanhas = () => {
                         {/* Email Body Preview */}
                         <div style={{
                             border: '1px solid var(--border-light)', borderRadius:'var(--radius-md)',
-                            padding: '1.5rem', background: '#fff', height: 260, overflowY: 'auto',
+                            padding: '1.25rem', background: '#fff', height: 200, overflowY: 'auto',
                             fontSize: '0.9rem', color: '#111'
                         }}
                             dangerouslySetInnerHTML={{ __html: getPreviewHtml(previewCampanha) }}
@@ -666,27 +667,27 @@ export const Campanhas = () => {
             {/* Create Form Modal */}
             {showForm && (
                 <div className="modal-overlay" onClick={() => setShowForm(false)} style={{ background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)' }}>
-                    <div className="modal-content animate-fade" style={{ maxWidth: 750, padding: '2rem 2.5rem', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }} onClick={e => e.stopPropagation()}>
-                        <div className="modal-header" style={{ marginBottom: '1.5rem' }}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 750, padding: '1.5rem 2rem', borderRadius: '1.25rem', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header" style={{ marginBottom: '1.25rem' }}>
                             <h2 style={{fontSize:'1.25rem', display:'flex', alignItems:'center', gap:'0.5rem', color: 'var(--text-main)'}}>
                                 <Plus size={20} color="var(--primary)"/> Cadastro de Campanha
                             </h2>
                             <button className="modal-close" onClick={() => setShowForm(false)}><X size={20}/></button>
                         </div>
-                        <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1rem' }}>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label className="form-label" style={{ fontWeight: 600 }}>Identificação (Interno)</label>
-                                    <input className="form-input" style={{ padding: '0.8rem' }} required value={novaCampanha.nome} onChange={e=>setNovaCampanha({...novaCampanha, nome: e.target.value})} placeholder="Ex: Contato Varas SP" />
+                                    <input className="form-input" style={{ padding: '0.65rem' }} required value={novaCampanha.nome} onChange={e=>setNovaCampanha({...novaCampanha, nome: e.target.value})} placeholder="Ex: Contato Varas SP" />
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label className="form-label" style={{ fontWeight: 600 }}>Tópico do Correspondente (Assunto)</label>
-                                    <input className="form-input" style={{ padding: '0.8rem' }} required value={novaCampanha.assunto} onChange={e=>setNovaCampanha({...novaCampanha, assunto: e.target.value})} placeholder="Apresentação de Serviços" />
+                                    <input className="form-input" style={{ padding: '0.65rem' }} required value={novaCampanha.assunto} onChange={e=>setNovaCampanha({...novaCampanha, assunto: e.target.value})} placeholder="Apresentação de Serviços" />
                                 </div>
                             </div>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                                 <label className="form-label" style={{ fontWeight: 600 }}>Markup de Envio (HTML)</label>
-                                <textarea className="form-input" style={{ height:'140px', fontFamily:'monospace', fontSize:'0.82rem', padding: '0.8rem', background: 'var(--bg-main)' }} required value={novaCampanha.corpo_html} onChange={e=>setNovaCampanha({...novaCampanha, corpo_html: e.target.value})} placeholder={`<p>Prezados do <strong>{{nome_tribunal}}</strong>,</p>`}></textarea>
+                                <textarea className="form-input" style={{ height:'100px', fontFamily:'monospace', fontSize:'0.82rem', padding: '0.65rem', background: 'var(--bg-main)' }} required value={novaCampanha.corpo_html} onChange={e=>setNovaCampanha({...novaCampanha, corpo_html: e.target.value})} placeholder={`<p>Prezados do <strong>{{nome_tribunal}}</strong>,</p>`}></textarea>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) auto auto 120px', gap: '1rem', alignItems: 'flex-end' }}>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
@@ -695,18 +696,18 @@ export const Campanhas = () => {
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label className="form-label" style={{ fontWeight: 600 }}>Data Limite</label>
-                                    <input type="date" className="form-input" style={{ padding: '0.8rem' }} required value={novaCampanha.data_inicio} onChange={e=>setNovaCampanha({...novaCampanha, data_inicio: e.target.value})} />
+                                    <input type="date" className="form-input" style={{ padding: '0.65rem' }} required value={novaCampanha.data_inicio} onChange={e=>setNovaCampanha({...novaCampanha, data_inicio: e.target.value})} />
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label className="form-label" style={{ fontWeight: 600 }}>Disparo HH:MM</label>
-                                    <input type="time" className="form-input" style={{ padding: '0.8rem' }} required value={novaCampanha.hora_inicio} onChange={e=>setNovaCampanha({...novaCampanha, hora_inicio: e.target.value})} />
+                                    <input type="time" className="form-input" style={{ padding: '0.65rem' }} required value={novaCampanha.hora_inicio} onChange={e=>setNovaCampanha({...novaCampanha, hora_inicio: e.target.value})} />
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label className="form-label" style={{ fontWeight: 600 }}>Ciclo (Dias)</label>
-                                    <input type="number" className="form-input" style={{ padding: '0.8rem' }} min="1" value={novaCampanha.intervalo_dias} onChange={e=>setNovaCampanha({...novaCampanha, intervalo_dias: e.target.value})} />
+                                    <input type="number" className="form-input" style={{ padding: '0.65rem' }} min="1" value={novaCampanha.intervalo_dias} onChange={e=>setNovaCampanha({...novaCampanha, intervalo_dias: e.target.value})} />
                                 </div>
                             </div>
-                            <button type="submit" className="btn btn-primary" style={{ padding: '1.1rem', marginTop: '0.5rem', fontWeight: 600, fontSize: '1.05rem' }} disabled={loading}>
+                            <button type="submit" className="btn btn-primary" style={{ padding: '0.85rem', marginTop: '0.5rem', fontWeight: 600, fontSize: '1rem' }} disabled={loading}>
                                 {loading ? 'Carregando Implantação...' : 'Implantar e Ativar Ciclo'}
                             </button>
                         </form>
@@ -717,27 +718,27 @@ export const Campanhas = () => {
             {/* Edit Modal */}
             {editCampanha && (
                 <div className="modal-overlay" onClick={() => setEditCampanha(null)} style={{ background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)' }}>
-                    <div className="modal-content animate-fade" style={{ maxWidth: 750, padding: '2rem 2.5rem', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }} onClick={e => e.stopPropagation()}>
-                        <div className="modal-header" style={{ marginBottom: '1.5rem' }}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 750, padding: '1.5rem 2rem', borderRadius: '1.25rem', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header" style={{ marginBottom: '1.25rem' }}>
                             <h2 style={{fontSize:'1.25rem', display:'flex', alignItems:'center', gap:'0.5rem', color: 'var(--text-main)'}}>
                                 <Pencil size={20} color="var(--primary)"/> Editar Carga da Campanha
                             </h2>
                             <button className="modal-close" onClick={() => setEditCampanha(null)}><X size={20}/></button>
                         </div>
-                        <form onSubmit={handleEdit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <form onSubmit={handleEdit} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1rem' }}>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label className="form-label" style={{ fontWeight: 600 }}>Identificação</label>
-                                    <input className="form-input" style={{ padding: '0.8rem' }} required value={editCampanha.nome} onChange={e=>setEditCampanha({...editCampanha, nome: e.target.value})} />
+                                    <input className="form-input" style={{ padding: '0.65rem' }} required value={editCampanha.nome} onChange={e=>setEditCampanha({...editCampanha, nome: e.target.value})} />
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label className="form-label" style={{ fontWeight: 600 }}>Tópico (Assunto)</label>
-                                    <input className="form-input" style={{ padding: '0.8rem' }} required value={editCampanha.assunto} onChange={e=>setEditCampanha({...editCampanha, assunto: e.target.value})} />
+                                    <input className="form-input" style={{ padding: '0.65rem' }} required value={editCampanha.assunto} onChange={e=>setEditCampanha({...editCampanha, assunto: e.target.value})} />
                                 </div>
                             </div>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                                 <label className="form-label" style={{ fontWeight: 600 }}>Markup (HTML)</label>
-                                <textarea className="form-input" style={{ height:'140px', fontFamily:'monospace', fontSize:'0.82rem', padding: '0.8rem', background: 'var(--bg-main)' }} required value={editCampanha.corpo_html} onChange={e=>setEditCampanha({...editCampanha, corpo_html: e.target.value})}></textarea>
+                                <textarea className="form-input" style={{ height:'100px', fontFamily:'monospace', fontSize:'0.82rem', padding: '0.65rem', background: 'var(--bg-main)' }} required value={editCampanha.corpo_html} onChange={e=>setEditCampanha({...editCampanha, corpo_html: e.target.value})}></textarea>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) auto auto 120px', gap: '1rem', alignItems: 'flex-end' }}>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
@@ -746,21 +747,47 @@ export const Campanhas = () => {
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label className="form-label" style={{ fontWeight: 600 }}>Nova Data</label>
-                                    <input type="date" className="form-input" style={{ padding: '0.8rem' }} value={editCampanha.data_inicio} onChange={e=>setEditCampanha({...editCampanha, data_inicio: e.target.value})} />
+                                    <input type="date" className="form-input" style={{ padding: '0.65rem' }} value={editCampanha.data_inicio} onChange={e=>setEditCampanha({...editCampanha, data_inicio: e.target.value})} />
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label className="form-label" style={{ fontWeight: 600 }}>Enviará HH:MM</label>
-                                    <input type="time" className="form-input" style={{ padding: '0.8rem' }} value={editCampanha.hora_inicio} onChange={e=>setEditCampanha({...editCampanha, hora_inicio: e.target.value})} />
+                                    <input type="time" className="form-input" style={{ padding: '0.65rem' }} value={editCampanha.hora_inicio} onChange={e=>setEditCampanha({...editCampanha, hora_inicio: e.target.value})} />
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label className="form-label" style={{ fontWeight: 600 }}>Ciclo (Dias)</label>
-                                    <input type="number" className="form-input" style={{ padding: '0.8rem' }} min="1" value={editCampanha.intervalo_dias} onChange={e=>setEditCampanha({...editCampanha, intervalo_dias: e.target.value})} />
+                                    <input type="number" className="form-input" style={{ padding: '0.65rem' }} min="1" value={editCampanha.intervalo_dias} onChange={e=>setEditCampanha({...editCampanha, intervalo_dias: e.target.value})} />
                                 </div>
                             </div>
-                            <button type="submit" className="btn btn-primary" style={{ padding: '1.1rem', marginTop: '0.5rem', fontWeight: 600, fontSize: '1.05rem' }}>
+                            <button type="submit" className="btn btn-primary" style={{ padding: '0.85rem', marginTop: '0.5rem', fontWeight: 600, fontSize: '1rem' }}>
                                 Aplicar Regras da Campanha
                             </button>
                         </form>
+                    </div>
+                </div>
+            )}
+            
+            {/* Confirmation Delete Modal Campanhas */}
+            {deleteConfirm && (
+                <div className="modal-overlay" onClick={() => setDeleteConfirm(null)} style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)' }}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 420, border: '1px solid rgba(239, 68, 68, 0.2)', padding: '2.5rem', borderRadius: '1.25rem', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
+                        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                            <div style={{ width: 64, height: 64, background: 'var(--error-bg)', color: 'var(--error)', borderRadius: '50%', display: 'grid', placeItems: 'center', margin: '0 auto 1.5rem', boxShadow: '0 0 40px rgba(239, 68, 68, 0.15)' }}>
+                                <Trash2 size={32} />
+                            </div>
+                            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.5rem', fontFamily: 'Outfit' }}>Apagar Campanha?</h2>
+                            <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>
+                                Você removerá a campanha <strong>{deleteConfirm.nome}</strong> e pausará o ciclo.
+                            </p>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '2rem' }}>
+                            <button className="btn btn-primary" style={{ background: 'var(--error)', borderColor: 'var(--error)', padding: '1rem', width: '100%', fontSize: '1rem' }} onClick={() => handleDelete(deleteConfirm)}>
+                                Sim, Excluir Agora
+                            </button>
+                            <button className="btn btn-outline" style={{ padding: '1rem', width: '100%', border: 'none', background: 'var(--bg-muted)' }} onClick={() => setDeleteConfirm(null)}>
+                                Cancelar
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
