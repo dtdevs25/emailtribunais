@@ -116,6 +116,17 @@ export const Tribunais = () => {
 
     useEffect(() => loadData(), []);
 
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            setBulkText(evt.target.result);
+            toast.success("Massa de dados carregada do arquivo!");
+        };
+        reader.readAsText(file);
+    };
+
     const handleBulkInsert = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -210,6 +221,12 @@ export const Tribunais = () => {
                             <code style={{fontSize: '0.8rem', color: 'var(--secondary)'}}>Nome do Tribunal ; email_contato@tj.jus.br ; SP</code>
                         </div>
 
+                        <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label className="form-label" style={{fontSize: '0.9rem', color: 'var(--primary)'}}>Opção 1: Selecionar arquivo (.csv ou .txt)</label>
+                            <input type="file" accept=".csv,.txt" className="form-input" onChange={handleFileUpload} />
+                        </div>
+
+                        <label className="form-label" style={{fontSize: '0.9rem'}}>Opção 2: Ou cole os textos diretamente aqui abaixo</label>
                         <textarea 
                             className="form-input" 
                             style={{ height: '220px', resize: 'vertical', fontFamily: 'monospace', fontSize: '0.85rem' }}

@@ -71,13 +71,13 @@ router.post('/bulk', async (req, res) => {
         let result;
         if (existing.rows.length > 0) {
           result = await query(
-            'UPDATE tribunais SET email = $1, tipo = $2 WHERE id = $3 RETURNING *',
-            [t.email, t.tipo || 'TJ', existing.rows[0].id]
+            'UPDATE tribunais SET email = $1 WHERE id = $2 RETURNING *',
+            [t.email, existing.rows[0].id]
           );
         } else {
           result = await query(
-            'INSERT INTO tribunais (nome, estado, email, tipo) VALUES ($1, $2, $3, $4) RETURNING *',
-            [t.nome, t.estado || 'SP', t.email, t.tipo || 'TJ']
+            'INSERT INTO tribunais (nome, estado, email) VALUES ($1, $2, $3) RETURNING *',
+            [t.nome, t.estado || 'SP', t.email]
           );
         }
         inserted.push(result.rows[0]);
