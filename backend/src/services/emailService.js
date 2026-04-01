@@ -1,31 +1,24 @@
 const nodemailer = require('nodemailer');
-const { query } = require('../db/pool');
 
-const getTransporter = async () => {
-  const configs = await query('SELECT chave, valor FROM configuracoes WHERE chave LIKE \'SMTP_%\'');
-  const configMap = configs.rows.reduce((acc, row) => {
-    acc[row.chave] = row.valor;
-    return acc;
-  }, {});
-
+const getTransporter = () => {
   return nodemailer.createTransport({
-    host: configMap.SMTP_HOST,
-    port: parseInt(configMap.SMTP_PORT) || 587,
-    secure: parseInt(configMap.SMTP_PORT) === 465,
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT) || 587,
+    secure: parseInt(process.env.SMTP_PORT) === 465,
     auth: {
-      user: configMap.SMTP_USER,
-      pass: configMap.SMTP_PASS,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
+    tls: { rejectUnauthorized: false }
   });
 };
 
 const sendEmail = async (to, subject, html, attachments = []) => {
-  const transporter = await getTransporter();
-  const configs = await query('SELECT valor FROM configuracoes WHERE chave = \'SMTP_FROM_NAME\' OR chave = \'SMTP_FROM_EMAIL\'');
-  const fromName = configs.rows.find(c => c.chave === 'SMTP_FROM_NAME')?.valor || 'Perito Judicial';
-  const fromEmail = configs.rows.find(c => c.chave === 'SMTP_FROM_EMAIL')?.valor;
+  const transporter = getTransporter();
+  const fromEmail = process.env.SMTP_USER;
+  const fromName = process.env.SMTP_FROM_NAME || 'Daniel Pereira dos Santos - Perito Judicial';
 
-  if (!fromEmail) throw new Error('SMTP_FROM_EMAIL not configured');
+  if (!fromEmail) throw new Error('SMTP_USER not configured in environment');
 
   const mailOptions = {
     from: `"${fromName}" <${fromEmail}>`,
@@ -38,6 +31,4 @@ const sendEmail = async (to, subject, html, attachments = []) => {
   return transporter.sendMail(mailOptions);
 };
 
-module.exports = {
-  sendEmail
-};
+module.exports = { sendEmail };

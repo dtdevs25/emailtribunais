@@ -1,6 +1,27 @@
 const cron = require('node-cron');
 const { query } = require('../db/pool');
 const { sendEmail } = require('./emailService');
+const Minio = require('minio');
+
+const minioClient = new Minio.Client({
+    endPoint: process.env.MINIO_ENDPOINT || 'storage-api.ehspro.com.br',
+    port: parseInt(process.env.MINIO_PORT) || 443,
+    useSSL: process.env.MINIO_USE_SSL === 'true',
+    accessKey: process.env.MINIO_ACCESS_KEY,
+    secretKey: process.env.MINIO_SECRET_KEY,
+});
+
+const BUCKET = process.env.MINIO_BUCKET_NAME || 'email-tribunais';
+
+const getMinioBuffer = (objectName) => new Promise((resolve, reject) => {
+    const chunks = [];
+    minioClient.getObject(BUCKET, objectName, (err, stream) => {
+        if (err) return reject(err);
+        stream.on('data', chunk => chunks.push(chunk));
+        stream.on('end', () => resolve(Buffer.concat(chunks)));
+        stream.on('error', reject);
+    });
+});
 
 const runCampanhas = async () => {
     try {
@@ -15,23 +36,26 @@ const runCampanhas = async () => {
         for (const campanha of campanhas.rows) {
             console.log(`Processing campaign: ${campanha.nome}`);
             
-            // Get tribunais for this campaign (or all active if none specified)
-            const tribunais = await query(`
-                SELECT * FROM tribunais 
-                WHERE ativo = TRUE
-            `);
+            const tribunais = await query(`SELECT * FROM tribunais WHERE ativo = TRUE`);
 
-            // Get attachments for this campaign
+            // Get attachments and fetch buffers from MinIO
             const anexos = await query(`
                 SELECT a.* FROM anexos a
                 JOIN campanha_anexos ca ON a.id = ca.anexo_id
                 WHERE ca.campanha_id = $1
             `, [campanha.id]);
 
-            const attachments = anexos.rows.map(a => ({
-                filename: a.nome,
-                path: a.minio_path // Assuming path is accessible or will be proxy-downloaded
-            }));
+            const attachments = [];
+            for (const a of anexos.rows) {
+                try {
+                    // minio_path format: "bucket/filename" — extract just filename
+                    const objectName = a.minio_path.includes('/') ? a.minio_path.split('/').slice(1).join('/') : a.minio_path;
+                    const content = await getMinioBuffer(objectName);
+                    attachments.push({ filename: a.nome, content });
+                } catch (e) {
+                    console.error(`Failed to fetch attachment ${a.nome} from MinIO:`, e.message);
+                }
+            }
 
             for (const tribunal of tribunais.rows) {
                 try {

@@ -251,15 +251,15 @@ export const Tribunais = () => {
 export const Campanhas = () => {
     const [campanhas, setCampanhas] = useState([]);
     const [novaCampanha, setNovaCampanha] = useState({
-        nome: '', 
-        assunto: '', 
-        corpo_html: '', 
-        intervalo_dias: 15,
-        data_inicio: new Date().toISOString().split('T')[0],
-        hora_inicio: '08:00'
+        nome: '', assunto: '', corpo_html: '', intervalo_dias: 15,
+        data_inicio: new Date().toISOString().split('T')[0], hora_inicio: '08:00'
     });
     const [filesToUpload, setFilesToUpload] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [showForm, setShowForm] = useState(false);
+    const [previewCampanha, setPreviewCampanha] = useState(null);
+    const [sendingTest, setSendingTest] = useState(false);
+    const [emailTeste, setEmailTeste] = useState('daniel-ehs@outlook.com');
 
     const loadData = () => {
         api.get('/campanhas').then(res => setCampanhas(res.data)).catch(() => toast.error('Erro ao listar'));
@@ -271,9 +271,8 @@ export const Campanhas = () => {
         setLoading(true);
         try {
             const anexo_ids = [];
-            // Handle Anexos (file uploads) before creating campaign
             if (filesToUpload.length > 0) {
-                toast.success(`Fazendo upload de ${filesToUpload.length} anexos...`);
+                toast.loading(`Fazendo upload de ${filesToUpload.length} anexo(s)...`);
                 for(const file of filesToUpload) {
                     const formData = new FormData();
                     formData.append('file', file);
@@ -282,118 +281,267 @@ export const Campanhas = () => {
                     });
                     anexo_ids.push(fileRes.data.id);
                 }
+                toast.dismiss();
             }
-
-            // Create Campaign
             await api.post('/campanhas', { ...novaCampanha, anexo_ids });
-            toast.success('Regra e Campanha programada com sucesso!');
+            toast.success('Campanha criada com sucesso!');
             setNovaCampanha({nome: '', assunto: '', corpo_html: '', intervalo_dias: 15, data_inicio: new Date().toISOString().split('T')[0], hora_inicio: '08:00'});
             setFilesToUpload([]);
+            setShowForm(false);
             loadData();
         } catch(err) {
             const serverMsg = err.response?.data?.error || err.message;
-            toast.error(`Erro ao programar campanha: ${serverMsg}`, { duration: 6000 });
+            toast.error(`Erro: ${serverMsg}`, { duration: 6000 });
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleToggle = async (campanha) => {
+        try {
+            const res = await api.patch(`/campanhas/${campanha.id}/toggle`);
+            const status = res.data.ativa ? 'ativada' : 'pausada';
+            toast.success(`Campanha "${campanha.nome}" ${status}!`);
+            loadData();
+        } catch(err) {
+            toast.error('Erro ao alterar status da campanha.');
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Remover esta campanha permanentemente?')) return;
+        try {
+            await api.delete(`/campanhas/${id}`);
+            toast.success('Campanha removida.');
+            loadData();
+        } catch(err) {
+            toast.error('Erro ao remover campanha.');
+        }
+    };
+
+    const handleSendTest = async () => {
+        if (!previewCampanha) return;
+        setSendingTest(true);
+        try {
+            await api.post(`/campanhas/${previewCampanha.id}/test-email`, { email_teste: emailTeste });
+            toast.success(`E-mail teste enviado para ${emailTeste}! Verifique sua caixa de entrada.`);
+        } catch(err) {
+            const msg = err.response?.data?.error || err.message;
+            toast.error(`Falha no envio teste: ${msg}`, { duration: 8000 });
+        } finally {
+            setSendingTest(false);
+        }
+    };
+
+    const getPreviewHtml = (campanha) => {
+        return (campanha.corpo_html || '')
+            .replace(/\{\{nome_tribunal\}\}/g, '<strong>[VARA DO TRABALHO DE TESTE]</strong>')
+            .replace(/\{\{estado\}\}/g, 'SP')
+            .replace(/\{\{cidade\}\}/g, 'São Paulo');
     };
 
     return (
         <div className="animate-fade">
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">Disparos e Mensagens</h1>
-                    <p className="page-subtitle">Configure o modelo de e-mail e ative automações.</p>
+                    <h1 className="page-title">Campanhas</h1>
+                    <p className="page-subtitle">Gerencie e acompanhe seus disparos automáticos.</p>
+                </div>
+                <button className="btn btn-primary" onClick={() => setShowForm(true)}>
+                    <Plus size={18} /> Nova Campanha
+                </button>
+            </div>
+
+            {/* Campaign Table */}
+            <div className="card">
+                <div className="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Nome da Campanha</th>
+                                <th>Assunto</th>
+                                <th>Próximo Envio</th>
+                                <th>Ciclo</th>
+                                <th>Anexos</th>
+                                <th style={{textAlign:'center'}}>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {campanhas.map(c => (
+                                <tr key={c.id}>
+                                    <td>
+                                        <button
+                                            onClick={() => handleToggle(c)}
+                                            style={{
+                                                background: 'none', border: 'none', cursor: 'pointer',
+                                                display: 'flex', alignItems: 'center', gap: '0.4rem',
+                                                color: c.ativa ? 'var(--success)' : 'var(--text-light)',
+                                                fontWeight: 600, fontSize: '0.82rem'
+                                            }}
+                                            title={c.ativa ? 'Clique para pausar' : 'Clique para ativar'}
+                                        >
+                                            <span style={{
+                                                width: 12, height: 12, borderRadius: '50%',
+                                                background: c.ativa ? 'var(--success)' : '#ccc',
+                                                display: 'inline-block',
+                                                boxShadow: c.ativa ? '0 0 0 3px rgba(16,185,129,0.2)' : 'none'
+                                            }}></span>
+                                            {c.ativa ? 'Ativa' : 'Pausada'}
+                                        </button>
+                                    </td>
+                                    <td style={{fontWeight: 600, color: 'var(--text-main)'}}>{c.nome}</td>
+                                    <td style={{color: 'var(--text-muted)', fontSize: '0.88rem', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{c.assunto}</td>
+                                    <td style={{color: 'var(--text-muted)', fontSize: '0.85rem'}}>
+                                        {c.proxima_execucao ? new Date(c.proxima_execucao).toLocaleString('pt-BR') : '—'}
+                                    </td>
+                                    <td><span className="badge badge-warning">A cada {c.intervalo_dias}d</span></td>
+                                    <td style={{fontSize: '0.82rem', color: 'var(--secondary)'}}>
+                                        {c.anexos && c.anexos.filter(a => a).length > 0
+                                            ? <span><Paperclip size={13} style={{verticalAlign:'middle', marginRight:4}}/>{c.anexos.filter(a=>a).length} arquivo(s)</span>
+                                            : <span style={{color:'var(--text-light)'}}>Nenhum</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div style={{display:'flex', gap:'0.5rem', justifyContent:'center'}}>
+                                            <button className="btn btn-outline" style={{padding:'0.3rem 0.7rem', fontSize:'0.8rem'}} onClick={() => setPreviewCampanha(c)}>
+                                                <Mail size={14}/> Preview
+                                            </button>
+                                            <button className="btn btn-outline" style={{padding:'0.3rem 0.7rem', fontSize:'0.8rem', color:'var(--error)', borderColor:'var(--error)'}} onClick={() => handleDelete(c.id)}>
+                                                <X size={14}/>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                            {campanhas.length === 0 && (
+                                <tr><td colSpan="7" style={{textAlign:'center', padding:'3rem', color:'var(--text-light)'}}>
+                                    Nenhuma campanha cadastrada. Clique em "Nova Campanha" para começar.
+                                </td></tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-                <div className="card" style={{ flex: '2 1 450px' }}>
-                    <h3 style={{ marginBottom: '1.5rem', fontWeight: 600 }}>Nova Campanha de Apresentação</h3>
-                    <form onSubmit={handleCreate}>
-                        <div className="form-group">
-                            <label className="form-label">Título da Campanha (Interno)</label>
-                            <input className="form-input" required value={novaCampanha.nome} onChange={e=>setNovaCampanha({...novaCampanha, nome: e.target.value})} placeholder="Ex: Disparo Geral - Varas do RJ" />
-                        </div>
-                        
-                        <div className="form-group">
-                            <label className="form-label">Assunto do E-mail</label>
-                            <input className="form-input" required value={novaCampanha.assunto} onChange={e=>setNovaCampanha({...novaCampanha, assunto: e.target.value})} placeholder="Apresentação de Serviços (Perícia Contábil) - Dr. Nome" />
-                        </div>
-
-                        <div className="form-group">
-                            <label className="form-label">Conteúdo Dinâmico (HTML ACEITO)</label>
-                            <textarea 
-                                className="form-input" 
-                                style={{ height: '220px', fontFamily: 'monospace', fontSize: '0.85rem' }} 
-                                required 
-                                value={novaCampanha.corpo_html} 
-                                onChange={e=>setNovaCampanha({...novaCampanha, corpo_html: e.target.value})}
-                                placeholder="<p>Prezado Excelentíssimo Senhor Juiz da {{nome_tribunal}},</p><p>Gostaria de me colocar à disposição para nomeações.</p>"
-                            ></textarea>
-                            <small style={{color:'var(--text-muted)'}}>Variáveis Mágicas: Digite <strong style={{color:'var(--primary)'}}>{`{{nome_tribunal}}`}</strong> no texto para citar o nome dinamicamente para cada juízo!</small>
-                        </div>
-
-                        <div className="form-group">
-                            <label className="form-label">Anexar Documentos/Currículos (.pdf, .doc)</label>
-                            <input 
-                                type="file" 
-                                multiple 
-                                className="form-input" 
-                                onChange={(e) => setFilesToUpload(Array.from(e.target.files))}
-                            />
-                        </div>
-
-                        <div style={{display: 'flex', gap: '1rem', marginTop: '1rem', marginBottom: '1rem'}}>
-                            <div className="form-group" style={{flex: 1, marginBottom: 0}}>
-                                <label className="form-label">Data de Início do Disparo</label>
-                                <input type="date" className="form-input" required value={novaCampanha.data_inicio} onChange={e=>setNovaCampanha({...novaCampanha, data_inicio: e.target.value})} />
+            {/* Preview Modal */}
+            {previewCampanha && (
+                <div className="modal-overlay" onClick={() => setPreviewCampanha(null)}>
+                    <div className="modal-content animate-fade" style={{maxWidth: 750, width: '95vw'}} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <div>
+                                <h2 style={{fontSize: '1.15rem', display:'flex', alignItems:'center', gap:'0.5rem'}}>
+                                    <Mail size={20} color="var(--primary)" /> Preview: {previewCampanha.nome}
+                                </h2>
+                                <p style={{fontSize:'0.82rem', color:'var(--text-muted)', marginTop:'0.2rem'}}>
+                                    As variáveis <strong style={{color:'var(--primary)'}}>{'{{nome_tribunal}}'}</strong> são substituídas por exemplo abaixo.
+                                </p>
                             </div>
-                            <div className="form-group" style={{flex: 1, marginBottom: 0}}>
-                                <label className="form-label">Horário de Início</label>
-                                <input type="time" className="form-input" required value={novaCampanha.hora_inicio} onChange={e=>setNovaCampanha({...novaCampanha, hora_inicio: e.target.value})} />
-                            </div>
+                            <button className="modal-close" onClick={() => setPreviewCampanha(null)}><X size={20}/></button>
                         </div>
 
-                        <div className="form-group">
-                            <label className="form-label">Repetição Automática (Dias para cobrar/reenviar)</label>
-                            <input type="number" className="form-input" min="1" value={novaCampanha.intervalo_dias} onChange={e=>setNovaCampanha({...novaCampanha, intervalo_dias: e.target.value})} />
-                        </div>
-
-                        <button type="submit" className="btn btn-primary" style={{width:'100%', marginTop: '1rem', padding: '1rem'}} disabled={loading}>
-                            {loading? 'Processando...' : 'Salvar Regra e Ativar Servidor de Disparos'}
-                        </button>
-                    </form>
-                </div>
-
-                <div className="card" style={{ flex: '1 1 300px', alignSelf: 'flex-start' }}>
-                    <h3 style={{ marginBottom: '1.5rem', fontWeight: 600 }}>Campanhas Ativas</h3>
-                    {campanhas.length === 0 && <p style={{color:'var(--text-light)', fontSize: '0.9rem'}}>Nenhuma campanha vinculada.</p>}
-                    <div style={{display:'flex', flexDirection:'column', gap:'1rem'}}>
-                        {campanhas.map(c => (
-                            <div key={c.id} style={{padding:'1.25rem', background:'var(--bg-main)', borderRadius:'var(--radius-md)', border:'1px solid var(--border-light)'}}>
-                                <strong style={{color: 'var(--text-main)', display:'block', marginBottom: '0.25rem'}}>{c.nome}</strong>
-                                <div style={{fontSize:'0.85rem', color:'var(--text-muted)'}}>{c.assunto}</div>
-                                
-                                {c.anexos && c.anexos[0] && c.anexos[0].nome !== null && (
-                                    <div style={{marginTop: '0.75rem', fontSize: '0.8rem', color: 'var(--secondary)'}}>
-                                        <Paperclip size={14} style={{verticalAlign: 'middle', marginRight: '4px'}}/>
-                                        {c.anexos.map(a => a.nome).join(', ')}
-                                    </div>
-                                )}
-                                
-                                <div style={{marginTop:'1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                    <span className="badge badge-success">Em Operação</span>
-                                    <span style={{fontSize: '0.75rem', color: 'var(--text-light)'}}>Ciclo: a cada {c.intervalo_dias} dias</span>
+                        {/* Email Header Preview */}
+                        <div style={{background:'var(--bg-muted)', borderRadius:'var(--radius-md)', padding:'1rem', marginBottom:'1rem', fontSize:'0.85rem'}}>
+                            <div><strong>De:</strong> Daniel Pereira dos Santos - Perito Judicial &lt;{process.env.SMTP_USER || 'contato@ehspro.com.br'}&gt;</div>
+                            <div><strong>Para:</strong> secretaria@vara-do-trabalho-de-teste.jus.br</div>
+                            <div><strong>Assunto:</strong> {previewCampanha.assunto}</div>
+                            {previewCampanha.anexos && previewCampanha.anexos.filter(a=>a).length > 0 && (
+                                <div style={{marginTop:'0.5rem', color:'var(--secondary)'}}>
+                                    <Paperclip size={13} style={{verticalAlign:'middle'}}/> <strong>Anexos:</strong> {previewCampanha.anexos.filter(a=>a).map(a=>a.nome).join(', ')}
                                 </div>
+                            )}
+                        </div>
+
+                        {/* Email Body Preview */}
+                        <div style={{
+                            border: '1px solid var(--border-light)', borderRadius:'var(--radius-md)',
+                            padding: '1.5rem', background: '#fff', maxHeight: 380, overflowY: 'auto',
+                            fontSize: '0.9rem'
+                        }}
+                            dangerouslySetInnerHTML={{ __html: getPreviewHtml(previewCampanha) }}
+                        />
+
+                        {/* Test Email */}
+                        <div style={{marginTop:'1.5rem', padding:'1rem', background:'#fffbeb', borderRadius:'var(--radius-md)', border:'1px solid #fcd34d'}}>
+                            <p style={{fontWeight:600, marginBottom:'0.75rem', color:'#92400e', fontSize:'0.9rem'}}>
+                                📧 Enviar E-mail de Teste (sem enviar aos tribunais)
+                            </p>
+                            <div style={{display:'flex', gap:'0.75rem', alignItems:'center', flexWrap:'wrap'}}>
+                                <input
+                                    type="email"
+                                    className="form-input"
+                                    style={{flex:1, minWidth:220}}
+                                    value={emailTeste}
+                                    onChange={e => setEmailTeste(e.target.value)}
+                                    placeholder="seu-email@exemplo.com"
+                                />
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={handleSendTest}
+                                    disabled={sendingTest || !emailTeste}
+                                    style={{whiteSpace:'nowrap'}}
+                                >
+                                    {sendingTest ? 'Enviando...' : '🚀 Enviar Teste'}
+                                </button>
                             </div>
-                        ))}
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
+
+            {/* Create Form Modal */}
+            {showForm && (
+                <div className="modal-overlay" onClick={() => setShowForm(false)}>
+                    <div className="modal-content animate-fade" style={{maxWidth: 700, width: '95vw'}} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2 style={{fontSize:'1.15rem', display:'flex', alignItems:'center', gap:'0.5rem'}}>
+                                <Plus size={20} color="var(--primary)"/> Nova Campanha
+                            </h2>
+                            <button className="modal-close" onClick={() => setShowForm(false)}><X size={20}/></button>
+                        </div>
+                        <form onSubmit={handleCreate}>
+                            <div className="form-group">
+                                <label className="form-label">Título da Campanha (Interno)</label>
+                                <input className="form-input" required value={novaCampanha.nome} onChange={e=>setNovaCampanha({...novaCampanha, nome: e.target.value})} placeholder="Ex: Disparo Geral - Varas SP" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Assunto do E-mail</label>
+                                <input className="form-input" required value={novaCampanha.assunto} onChange={e=>setNovaCampanha({...novaCampanha, assunto: e.target.value})} placeholder="Apresentação de Serviços - Perito Judicial - Daniel Santos" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Conteúdo HTML do E-mail</label>
+                                <textarea className="form-input" style={{height:'200px', fontFamily:'monospace', fontSize:'0.82rem'}} required value={novaCampanha.corpo_html} onChange={e=>setNovaCampanha({...novaCampanha, corpo_html: e.target.value})} placeholder={`<p>Prezados da <strong>{{nome_tribunal}}</strong>,</p>`}></textarea>
+                                <small style={{color:'var(--primary)', fontWeight:500}}>Use {'{{nome_tribunal}}'} para personalizar automaticamente!</small>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Anexar Documentos (.pdf, .doc)</label>
+                                <input type="file" multiple className="form-input" onChange={(e) => setFilesToUpload(Array.from(e.target.files))} />
+                            </div>
+                            <div style={{display:'flex', gap:'1rem'}}>
+                                <div className="form-group" style={{flex:1}}>
+                                    <label className="form-label">Data de Início</label>
+                                    <input type="date" className="form-input" required value={novaCampanha.data_inicio} onChange={e=>setNovaCampanha({...novaCampanha, data_inicio: e.target.value})} />
+                                </div>
+                                <div className="form-group" style={{flex:1}}>
+                                    <label className="form-label">Horário (BRT)</label>
+                                    <input type="time" className="form-input" required value={novaCampanha.hora_inicio} onChange={e=>setNovaCampanha({...novaCampanha, hora_inicio: e.target.value})} />
+                                </div>
+                                <div className="form-group" style={{flex:1}}>
+                                    <label className="form-label">Repetir a cada (dias)</label>
+                                    <input type="number" className="form-input" min="1" value={novaCampanha.intervalo_dias} onChange={e=>setNovaCampanha({...novaCampanha, intervalo_dias: e.target.value})} />
+                                </div>
+                            </div>
+                            <button type="submit" className="btn btn-primary" style={{width:'100%', padding:'1rem', marginTop:'0.5rem'}} disabled={loading}>
+                                {loading ? 'Processando...' : '🚀 Salvar e Ativar Campanha'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
+
 
 export const Historico = () => {
     const [envios, setEnvios] = useState([]);

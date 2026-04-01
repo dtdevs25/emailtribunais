@@ -1,13 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const { query } = require('../db/pool');
+const { sendEmail } = require('../services/emailService');
+const path = require('path');
 
-// List campaigns
+// List campaigns with template data
 router.get('/', async (req, res) => {
   try {
     const result = await query(`
         SELECT c.*, t.assunto, t.corpo_html,
-        (SELECT json_agg(json_build_object('id', a.id, 'nome', a.nome))
+        (SELECT json_agg(json_build_object('id', a.id, 'nome', a.nome, 'minio_path', a.minio_path))
          FROM campanha_anexos ca JOIN anexos a ON ca.anexo_id = a.id 
          WHERE ca.campanha_id = c.id) as anexos
         FROM campanhas c 
@@ -32,9 +34,9 @@ router.post('/', async (req, res) => {
     const templateId = tplRes.rows[0].id;
 
     // 2. Create Campanha (Scheduled Time)
-    let proximaExec = new Date(); // default to now
+    let proximaExec = new Date();
     if (data_inicio && hora_inicio) {
-        proximaExec = new Date(`${data_inicio}T${hora_inicio}:00-03:00`); // BRT Timezone
+        proximaExec = new Date(`${data_inicio}T${hora_inicio}:00-03:00`);
     }
     
     const campRes = await query(
@@ -52,6 +54,67 @@ router.post('/', async (req, res) => {
 
     res.status(201).json(campRes.rows[0]);
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Toggle campaign active/inactive
+router.patch('/:id/toggle', async (req, res) => {
+  try {
+    const result = await query(
+      'UPDATE campanhas SET ativa = NOT ativa WHERE id = $1 RETURNING *',
+      [req.params.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Campanha não encontrada' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Send test email for a campaign
+router.post('/:id/test-email', async (req, res) => {
+  const { email_teste } = req.body;
+  const targetEmail = email_teste || 'daniel-ehs@outlook.com';
+  
+  try {
+    const result = await query(`
+      SELECT c.*, t.assunto, t.corpo_html,
+      (SELECT json_agg(json_build_object('id', a.id, 'nome', a.nome, 'minio_path', a.minio_path))
+       FROM campanha_anexos ca JOIN anexos a ON ca.anexo_id = a.id 
+       WHERE ca.campanha_id = c.id) as anexos
+      FROM campanhas c 
+      LEFT JOIN templates t ON c.template_id = t.id 
+      WHERE c.id = $1
+    `, [req.params.id]);
+
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Campanha não encontrada' });
+    
+    const campanha = result.rows[0];
+    
+    // Replace variables with sample data for preview
+    const htmlTeste = (campanha.corpo_html || '')
+      .replace(/\{\{nome_tribunal\}\}/g, '[VARA DO TRABALHO DE TESTE]')
+      .replace(/\{\{estado\}\}/g, 'SP')
+      .replace(/\{\{cidade\}\}/g, 'São Paulo');
+
+    const attachments = (campanha.anexos || [])
+      .filter(a => a && a.minio_path)
+      .map(a => ({
+        filename: a.nome,
+        path: a.minio_path
+      }));
+
+    await sendEmail(
+      targetEmail,
+      `[TESTE] ${campanha.assunto}`,
+      htmlTeste,
+      attachments
+    );
+
+    res.json({ success: true, message: `E-mail teste enviado para ${targetEmail}` });
+  } catch (err) {
+    console.error('Test email error:', err);
     res.status(500).json({ error: err.message });
   }
 });
