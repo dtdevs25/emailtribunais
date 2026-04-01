@@ -24,7 +24,8 @@ export const Dashboard = () => {
         { name: 'Falhas', value: failures > 0 ? failures : 0 }
     ];
 
-    const COLORS = ['#10b981', '#ef4444'];
+    const PIE_COLORS = ['#10b981', '#ef4444'];
+    const VIBRANT_COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
 
     return (
         <div className="animate-fade">
@@ -104,7 +105,7 @@ export const Dashboard = () => {
                                     cornerRadius={12}
                                 >
                                     {pieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                                     ))}
                                 </Pie>
                                 <Tooltip 
@@ -128,9 +129,9 @@ export const Dashboard = () => {
                                     cursor={{fill: 'var(--bg-muted)', opacity: 0.5}} 
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: '1rem', fontWeight: 500 }}
                                 />
-                                <Bar dataKey="value" fill="var(--primary)" radius={[8, 8, 8, 8]} name="E-mails Entregues" maxBarSize={40}>
+                                <Bar dataKey="value" radius={[8, 8, 8, 8]} name="E-mails Entregues" maxBarSize={50}>
                                     {(stats.regioes || []).map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={index === 0 ? 'var(--primary)' : 'var(--primary-glow)'} />
+                                        <Cell key={`cell-${index}`} fill={VIBRANT_COLORS[index % VIBRANT_COLORS.length]} />
                                     ))}
                                 </Bar>
                             </BarChart>
@@ -943,27 +944,43 @@ export const Historico = () => {
 
             {/* Email Viewer Modal */}
             {previewContent && (
-                <div className="modal-overlay" onClick={() => setPreviewContent(null)} style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)' }}>
-                    <div className="modal-content animate-fade" style={{ maxWidth: 700, padding: '2rem', borderRadius: '1.25rem', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)', margin: 0, fontFamily: 'Outfit' }}>Auditoria de Envio</h2>
-                            <button onClick={() => setPreviewContent(null)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                <div className="modal-overlay" onClick={() => setPreviewContent(null)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <div>
+                                <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                                    <Mail size={24} color="var(--primary)" /> 
+                                    Auditoria de Envio
+                                </h2>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                                    Cópia exata gerada pelo servidor
+                                </p>
+                            </div>
+                            <button className="modal-close" onClick={() => setPreviewContent(null)}>
                                 <X size={24} />
                             </button>
                         </div>
-                        <div style={{ marginBottom: '1.5rem', background: 'var(--bg-muted)', padding: '1rem', borderRadius: '0.5rem', fontSize: '0.9rem', color: 'var(--text-main)' }}>
-                            <p style={{ margin: '0 0 0.5rem' }}><strong>Remetente:</strong> Pelo Servidor Principal (ehspro.com.br)</p>
-                            <p style={{ margin: '0 0 0.5rem' }}><strong>Recolhido Pela Vara:</strong> {previewContent.destino}</p>
-                            <p style={{ margin: 0 }}><strong>Assunto Entregue:</strong> {previewContent.titulo}</p>
-                        </div>
-                        <h4 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.75rem' }}>Corpo do Documento:</h4>
                         
-                        <div style={{ width: '100%', height: '350px', background: '#fff', borderRadius: '0.5rem', border: '1px solid var(--border-light)', overflowY: 'auto', padding: '1.5rem', color: '#333' }}
+                        <div style={{ marginBottom: '1.5rem', background: 'var(--bg-muted)', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.95rem' }}>
+                                <div><strong style={{ color: 'var(--text-main)' }}>Servidor Remetente:</strong> <span style={{ color: 'var(--text-muted)' }}>mail.ehspro.com.br</span></div>
+                                <div><strong style={{ color: 'var(--text-main)' }}>Destino Reconhecido:</strong> <span style={{ color: 'var(--text-muted)' }}>{previewContent.destino}</span></div>
+                                <div><strong style={{ color: 'var(--text-main)' }}>Assunto Injetado:</strong> <span style={{ color: 'var(--primary)' }}>{previewContent.titulo}</span></div>
+                            </div>
+                        </div>
+                        
+                        <h4 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <CheckCircle size={18} color="var(--success)" /> Renderização do Documento
+                        </h4>
+                        
+                        <div style={{ width: '100%', height: '400px', background: '#ffffff', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', overflowY: 'auto', padding: '2rem', color: '#111827', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }}
                              dangerouslySetInnerHTML={{ __html: previewContent.html }}
                         />
 
-                        <div style={{ marginTop: '1.5rem', textAlign: 'right' }}>
-                            <button className="btn btn-outline" onClick={() => setPreviewContent(null)}>Fechar Visualização</button>
+                        <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
+                            <button className="btn btn-primary" onClick={() => setPreviewContent(null)}>
+                                Fechar Visualização
+                            </button>
                         </div>
                     </div>
                 </div>
