@@ -26,6 +26,9 @@ app.use(express.static(publicPath));
 // Routes
 app.use('/api/tribunais', require('./routes/tribunais'));
 app.use('/api/configuracoes', require('./routes/configuracoes'));
+app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/campanhas', require('./routes/campanhas'));
+app.use('/api/envios', require('./routes/envios'));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'EmailPericia Backend is running' });

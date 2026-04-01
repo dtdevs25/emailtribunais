@@ -11,97 +11,7 @@ import { Toaster, toast } from 'react-hot-toast';
 
 // --- COMPONENTS ---
 
-const Dashboard = () => (
-    <div className="animate-fade">
-        <div className="page-header">
-            <h1 className="page-title">Central de Controle</h1>
-            <p className="page-subtitle">Olá, Dr. Daniel. Veja o status das suas campanhas de nomeação hoje.</p>
-        </div>
-
-        <div className="stats-grid">
-            <div className="card stat-card">
-                <div className="stat-icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)' }}>
-                    <TrendingUp size={24} />
-                </div>
-                <div className="stat-value">124</div>
-                <div className="stat-label">Envios este mês</div>
-                <div style={{ color: 'var(--success)', fontSize: '0.8rem', fontWeight: 600 }}>+12.5% em relação ao período anterior</div>
-            </div>
-            
-            <div className="card stat-card">
-                <div className="stat-icon-box" style={{ background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)' }}>
-                    <Calendar size={24} />
-                </div>
-                <div className="stat-value">15 Abr</div>
-                <div className="stat-label">Próximo Agendamento</div>
-                <div style={{ color: 'var(--accent)', fontSize: '0.8rem', fontWeight: 600 }}>TJ/SP - Solicitação de Nomeação</div>
-            </div>
-
-            <div className="card stat-card">
-                <div className="stat-icon-box" style={{ background: 'rgba(34, 211, 238, 0.1)', color: 'var(--accent)' }}>
-                    <CheckCircle size={24} />
-                </div>
-                <div className="stat-value">98.2%</div>
-                <div className="stat-label">Taxa de Sucesso</div>
-                <div style={{ color: 'var(--success)', fontSize: '0.8rem', fontWeight: 600 }}>SMTP Saudável & Ativo</div>
-            </div>
-
-            <div className="card stat-card">
-                <div className="stat-icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)' }}>
-                    <AlertCircle size={24} />
-                </div>
-                <div className="stat-value">2</div>
-                <div className="stat-label">Falhas de Envio</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 600 }}>Pendentes de reprocessamento</div>
-            </div>
-        </div>
-
-        <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.25rem' }}>Histórico de Atividade Recente</h3>
-                <button className="btn-login" style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', marginTop: 0 }}>Ver Tudo</button>
-            </div>
-            <div className="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Data/Hora</th>
-                            <th>Tribunal</th>
-                            <th>Campanha Ativa</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style={{ color: 'var(--text-muted)' }}>Hoje, 11:24</td>
-                            <td style={{ fontWeight: 500 }}>TJ/SP - 2ª Vara Cível</td>
-                            <td>Apresentação Perito</td>
-                            <td><span className="badge badge-success"><CheckCircle size={14}/> ENVIADO</span></td>
-                        </tr>
-                        <tr>
-                            <td style={{ color: 'var(--text-muted)' }}>Ontem, 21:00</td>
-                            <td style={{ fontWeight: 500 }}>TRF-3 São Paulo</td>
-                            <td>Atualização Cadastral</td>
-                            <td><span className="badge badge-success"><CheckCircle size={14}/> ENVIADO</span></td>
-                        </tr>
-                        <tr>
-                            <td style={{ color: 'var(--text-muted)' }}>30/03, 14:30</td>
-                            <td style={{ fontWeight: 500 }}>TJ/RJ - 5ª Vara Cível</td>
-                            <td>Proposta de Honorários</td>
-                            <td><span className="badge badge-success"><CheckCircle size={14}/> ENVIADO</span></td>
-                        </tr>
-                        <tr>
-                            <td style={{ color: 'var(--text-muted)' }}>28/03, 09:15</td>
-                            <td style={{ fontWeight: 500 }}>TJ/MG - 1ª Vara Cível</td>
-                            <td>Apresentação Perito</td>
-                            <td><span className="badge badge-error"><X size={14}/> ERRO SMTP</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-);
+import { Dashboard, Tribunais, Campanhas, Historico } from './Pages';
 
 const EmptyState = ({ title, icon: Icon }) => (
     <div className="animate-fade">
@@ -359,11 +269,11 @@ const App = () => {
                         <Toaster position="top-right" />
                         <Routes>
                             <Route path="/" element={<Dashboard />} />
-                            <Route path="/tribunais" element={<EmptyState title="Tribunais" icon={Gavel} />} />
-                            <Route path="/templates" element={<EmptyState title="Templates" icon={Mail} />} />
-                            <Route path="/campanhas" element={<EmptyState title="Campanhas" icon={Calendar} />} />
+                            <Route path="/tribunais" element={<Tribunais />} />
+                            <Route path="/templates" element={<Navigate to="/campanhas" replace />} />
+                            <Route path="/campanhas" element={<Campanhas />} />
                             <Route path="/anexos" element={<EmptyState title="Anexos" icon={Paperclip} />} />
-                            <Route path="/historico" element={<EmptyState title="Histórico" icon={History} />} />
+                            <Route path="/historico" element={<Historico />} />
                             <Route path="/configuracoes" element={<EmptyState title="Configurações" icon={Settings} />} />
                             <Route path="*" element={<Navigate to="/" replace />} />
                         </Routes>
