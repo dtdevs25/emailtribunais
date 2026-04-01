@@ -7,14 +7,21 @@ const { runCampanhas } = require('./services/schedulerService');
 const app = express();
 const port = process.env.PORT || 3001;
 
+const path = require('path');
+
+// Logger middleware for debugging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 // Middlewares
 app.use(cors());
 app.use(express.json());
 
-const path = require('path');
-
 // Static Files (Frontend)
-app.use(express.static(path.join(__dirname, '../public')));
+const publicPath = path.join(__dirname, '../public');
+app.use(express.static(publicPath));
 
 // Routes
 app.use('/api/tribunais', require('./routes/tribunais'));
@@ -25,8 +32,9 @@ app.get('/health', (req, res) => {
 });
 
 // React Catch-all
-app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'index.html'));
+app.get('/:path*', (req, res) => {
+  // Use path.join instead of relative
+  res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 // Start server
