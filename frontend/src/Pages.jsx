@@ -250,7 +250,14 @@ export const Tribunais = () => {
 
 export const Campanhas = () => {
     const [campanhas, setCampanhas] = useState([]);
-    const [novaCampanha, setNovaCampanha] = useState({nome: '', assunto: '', corpo_html: '', intervalo_dias: 15});
+    const [novaCampanha, setNovaCampanha] = useState({
+        nome: '', 
+        assunto: '', 
+        corpo_html: '', 
+        intervalo_dias: 15,
+        data_inicio: new Date().toISOString().split('T')[0],
+        hora_inicio: '08:00'
+    });
     const [filesToUpload, setFilesToUpload] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -280,11 +287,12 @@ export const Campanhas = () => {
             // Create Campaign
             await api.post('/campanhas', { ...novaCampanha, anexo_ids });
             toast.success('Regra e Campanha programada com sucesso!');
-            setNovaCampanha({nome: '', assunto: '', corpo_html: '', intervalo_dias: 15});
+            setNovaCampanha({nome: '', assunto: '', corpo_html: '', intervalo_dias: 15, data_inicio: new Date().toISOString().split('T')[0], hora_inicio: '08:00'});
             setFilesToUpload([]);
             loadData();
         } catch(err) {
-            toast.error('Erro ao programar campanha e anexos.');
+            const serverMsg = err.response?.data?.error || err.message;
+            toast.error(`Erro ao programar campanha: ${serverMsg}`, { duration: 6000 });
         } finally {
             setLoading(false);
         }
@@ -334,6 +342,17 @@ export const Campanhas = () => {
                                 className="form-input" 
                                 onChange={(e) => setFilesToUpload(Array.from(e.target.files))}
                             />
+                        </div>
+
+                        <div style={{display: 'flex', gap: '1rem', marginTop: '1rem', marginBottom: '1rem'}}>
+                            <div className="form-group" style={{flex: 1, marginBottom: 0}}>
+                                <label className="form-label">Data de Início do Disparo</label>
+                                <input type="date" className="form-input" required value={novaCampanha.data_inicio} onChange={e=>setNovaCampanha({...novaCampanha, data_inicio: e.target.value})} />
+                            </div>
+                            <div className="form-group" style={{flex: 1, marginBottom: 0}}>
+                                <label className="form-label">Horário de Início</label>
+                                <input type="time" className="form-input" required value={novaCampanha.hora_inicio} onChange={e=>setNovaCampanha({...novaCampanha, hora_inicio: e.target.value})} />
+                            </div>
                         </div>
 
                         <div className="form-group">

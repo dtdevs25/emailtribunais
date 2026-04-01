@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
 
 // Create campaign & template atomically
 router.post('/', async (req, res) => {
-  const { nome, assunto, corpo_html, intervalo_dias, anexo_ids } = req.body;
+  const { nome, assunto, corpo_html, intervalo_dias, anexo_ids, data_inicio, hora_inicio } = req.body;
   try {
     // 1. Create Template
     const tplRes = await query(
@@ -31,10 +31,15 @@ router.post('/', async (req, res) => {
     );
     const templateId = tplRes.rows[0].id;
 
-    // 2. Create Campanha
+    // 2. Create Campanha (Scheduled Time)
+    let proximaExec = new Date(); // default to now
+    if (data_inicio && hora_inicio) {
+        proximaExec = new Date(`${data_inicio}T${hora_inicio}:00-03:00`); // BRT Timezone
+    }
+    
     const campRes = await query(
-      'INSERT INTO campanhas (nome, template_id, intervalo_dias, ativa, proxima_execucao) VALUES ($1, $2, $3, true, NOW()) RETURNING *',
-      [nome, templateId, intervalo_dias || 15]
+      'INSERT INTO campanhas (nome, template_id, intervalo_dias, ativa, proxima_execucao) VALUES ($1, $2, $3, true, $4) RETURNING *',
+      [nome, templateId, intervalo_dias || 15, proximaExec]
     );
     const campanhaId = campRes.rows[0].id;
 

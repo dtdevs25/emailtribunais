@@ -41,8 +41,25 @@ app.get(/.*/, (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
 
+// Auto-migration to ensure columns exist on legacy databases
+const runMigrations = async () => {
+  try {
+    await pool.query(`
+      ALTER TABLE tribunais ADD COLUMN IF NOT EXISTS tipo VARCHAR(50) DEFAULT 'TJ';
+      ALTER TABLE campanhas ADD COLUMN IF NOT EXISTS intervalo_dias INTEGER DEFAULT 15;
+      ALTER TABLE campanhas ADD COLUMN IF NOT EXISTS ativa BOOLEAN DEFAULT TRUE;
+      ALTER TABLE campanhas ADD COLUMN IF NOT EXISTS proxima_execucao TIMESTAMP WITH TIME ZONE;
+      ALTER TABLE envios ADD COLUMN IF NOT EXISTS erro_mensagem TEXT;
+    `);
+    console.log("Database schema auto-migrated successfully.");
+  } catch (err) {
+    console.error("Migration failed:", err.message);
+  }
+};
+
 // Start server
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log(`EmailPericia Backend listening at http://localhost:${port}`);
+  await runMigrations();
   runCampanhas();
 });
