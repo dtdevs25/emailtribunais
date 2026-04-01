@@ -28,120 +28,142 @@ export const Dashboard = () => {
 
     return (
         <div className="animate-fade">
-            <div className="page-header">
+            <div className="page-header" style={{ marginBottom: '2.5rem' }}>
                 <div>
-                    <h1 className="page-title">Painel de Controle</h1>
-                    <p className="page-subtitle">Acompanhe seus disparos e resultados em tempo real.</p>
+                    <h1 className="page-title" style={{ fontSize: '2rem', background: 'linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.25rem' }}>Visão Geral</h1>
+                    <p className="page-subtitle" style={{ fontSize: '1rem' }}>Métricas de desempenho e entregabilidade em tempo real.</p>
                 </div>
             </div>
 
-            <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-                <div className="card stat-card">
-                    <div className="stat-icon-box" style={{ background: 'var(--primary-glow)', color: 'var(--primary)' }}>
-                        <Mail size={24} />
+            <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
+                <div className="card stat-card" style={{ background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                            <div className="stat-label">Total de Disparos</div>
+                            <div className="stat-value">{stats.totalEnvios}</div>
+                        </div>
+                        <div className="stat-icon-box" style={{ background: 'var(--primary-glow)', color: 'var(--primary)', boxShadow: '0 4px 15px rgba(79, 70, 229, 0.2)' }}>
+                            <Mail size={24} />
+                        </div>
                     </div>
-                    <div>
-                        <div className="stat-label">Total Enviado</div>
-                        <div className="stat-value">{stats.totalEnvios}</div>
+                    <div style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 500 }}>
+                        <TrendingUp size={14} /> Atualizado agora
                     </div>
                 </div>
                 
-                <div className="card stat-card">
-                    <div className="stat-icon-box" style={{ background: 'rgba(14, 165, 233, 0.1)', color: 'var(--secondary)' }}>
-                        <Gavel size={24} />
+                <div className="card stat-card" style={{ background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                            <div className="stat-label">Base de Tribunais</div>
+                            <div className="stat-value">{stats.totalTribunais}</div>
+                        </div>
+                        <div className="stat-icon-box" style={{ background: 'rgba(14, 165, 233, 0.1)', color: 'var(--secondary)', boxShadow: '0 4px 15px rgba(14, 165, 233, 0.2)' }}>
+                            <Gavel size={24} />
+                        </div>
                     </div>
-                    <div>
-                        <div className="stat-label">Tribunais Cadastrados</div>
-                        <div className="stat-value">{stats.totalTribunais}</div>
-                    </div>
+                    <div style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-light)', fontWeight: 500 }}>Contatos ativos na base</div>
                 </div>
 
-                <div className="card stat-card">
-                    <div className="stat-icon-box" style={{ background: 'var(--warning-bg)', color: 'var(--warning)' }}>
-                        <TrendingUp size={24} />
+                <div className="card stat-card" style={{ background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                            <div className="stat-label">Campanhas Ativas</div>
+                            <div className="stat-value">{stats.totalCampanhas}</div>
+                        </div>
+                        <div className="stat-icon-box" style={{ background: 'var(--warning-bg)', color: 'var(--warning)', boxShadow: '0 4px 15px rgba(245, 158, 11, 0.2)' }}>
+                            <Calendar size={24} />
+                        </div>
                     </div>
-                    <div>
-                        <div className="stat-label">Campanhas Ativas</div>
-                        <div className="stat-value">{stats.totalCampanhas}</div>
-                    </div>
+                    <div style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-light)', fontWeight: 500 }}>Em andamento</div>
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
-                <div className="card" style={{ padding: '2.5rem', minHeight: 450, display: 'flex', flexDirection: 'column' }}>
-                    <h3 style={{ marginBottom: '2rem', fontSize: '1.1rem', fontWeight: 600 }}>Eficiência de Entrega</h3>
-                    <div style={{ flex: 1, minHeight: 300 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
+                <div className="card" style={{ padding: '2rem', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
+                    <h3 style={{ marginBottom: '1.5rem', fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>Taxa de Eficiência</h3>
+                    <div style={{ flex: 1, minHeight: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+                            <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-1px' }}>{sRate}%</div>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>Entregas</div>
+                        </div>
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
+                                <defs>
+                                    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                                        <feDropShadow dx="0" dy="5" stdDeviation="8" floodOpacity="0.15" />
+                                    </filter>
+                                </defs>
                                 <Pie
                                     data={pieData}
                                     innerRadius={75}
                                     outerRadius={100}
-                                    paddingAngle={10}
+                                    paddingAngle={8}
                                     dataKey="value"
+                                    stroke="none"
+                                    filter="url(#shadow)"
+                                    cornerRadius={12}
                                 >
                                     {pieData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
-                                <Tooltip />
-                                <Legend verticalAlign="bottom" height={36}/>
+                                <Tooltip 
+                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: '1rem', fontWeight: 500 }}
+                                    itemStyle={{ color: 'var(--text-main)' }}
+                                />
+                                <Legend verticalAlign="bottom" height={36} iconType="circle"/>
                             </PieChart>
                         </ResponsiveContainer>
                     </div>
-                    <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-                        <div style={{ fontSize: '2.8rem', fontWeight: 800, color: 'var(--success)', letterSpacing: '-1px' }}>{sRate}%</div>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 500 }}>Taxa de Sucesso Total</div>
-                    </div>
                 </div>
 
-                <div className="card" style={{ padding: '2.5rem', minHeight: 450, display: 'flex', flexDirection: 'column' }}>
-                    <h3 style={{ marginBottom: '2rem', fontSize: '1.1rem', fontWeight: 600 }}>Volume por Campanha</h3>
-                    <div style={{ flex: 1, minHeight: 300 }}>
+                <div className="card" style={{ padding: '2rem', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
+                    <h3 style={{ marginBottom: '1.5rem', fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>Volume Recente Transmitido</h3>
+                    <div style={{ flex: 1, minHeight: 280 }}>
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={stats.historico.slice(0, 10).reverse()}>
+                            <BarChart data={stats.historico.slice(0, 10).reverse()} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <XAxis dataKey="campanha" hide />
-                                <YAxis hide />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-light)' }} />
                                 <Tooltip 
-                                    cursor={{fill: 'var(--bg-muted)', opacity: 0.4}} 
-                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                                    cursor={{fill: 'var(--bg-muted)', opacity: 0.5}} 
+                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: '1rem' }}
                                 />
-                                <Bar dataKey="id" fill="var(--primary)" radius={[6, 6, 0, 0]} name="Volume" />
+                                <Bar dataKey="id" fill="var(--primary)" radius={[8, 8, 8, 8]} name="Disparos" maxBarSize={40}>
+                                    {stats.historico.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={index === stats.historico.length - 1 ? 'var(--primary)' : 'var(--primary-glow)'} />
+                                    ))}
+                                </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
-                    <p style={{ textAlign: 'center', color: 'var(--text-light)', fontSize: '0.85rem', marginTop: '1.5rem' }}>
-                        Dados extraídos dos seus disparos mais recentes.
-                    </p>
                 </div>
             </div>
-            <div className="card" style={{ marginTop: '2rem' }}>
-                <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 600 }}>Envios Recentes / Acompanhamento</h3>
+            
+            <div className="card" style={{ border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.02)' }}>
+                <h3 style={{ fontSize: '1.15rem', marginBottom: '1.25rem', fontWeight: 700, color: 'var(--text-main)' }}>Recentes & Ocorrencias</h3>
                 <div className="table-wrapper">
-                    <table>
+                    <table style={{ background: 'transparent' }}>
                         <thead>
                             <tr>
-                                <th>Data/Hora</th>
-                                <th>Tribunal</th>
-                                <th>Campanha</th>
-                                <th>Status</th>
-                                <th>Resposta</th>
+                                <th style={{ background: 'transparent', borderBottom: '1px solid var(--border-light)' }}>Destino / Vara</th>
+                                <th style={{ background: 'transparent', borderBottom: '1px solid var(--border-light)' }}>Campanha Executada</th>
+                                <th style={{ background: 'transparent', borderBottom: '1px solid var(--border-light)' }}>Horário</th>
+                                <th style={{ background: 'transparent', borderBottom: '1px solid var(--border-light)' }}>Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {stats.historico.length === 0 && <tr><td colSpan="5" style={{textAlign:'center', color:'var(--text-muted)'}}>Nenhum envio recente.</td></tr>}
+                            {stats.historico.length === 0 && <tr><td colSpan="4" style={{textAlign:'center', color:'var(--text-light)', padding: '3rem'}}>Monitoramento ocioso. Nenhum envio recente.</td></tr>}
                             {stats.historico.map((h, i) => (
-                                <tr key={i}>
-                                    <td style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{new Date(h.enviado_em).toLocaleString()}</td>
-                                    <td style={{ fontWeight: 500 }}>{h.tribunal || 'Desconhecido'}</td>
-                                    <td>{h.campanha || h.assunto}</td>
+                                <tr key={i} style={{ transition: 'background 0.2s', cursor: 'default' }}>
+                                    <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{h.tribunal || 'Não Identificado'}</td>
+                                    <td style={{ color: 'var(--text-muted)' }}>{h.campanha || h.assunto}</td>
+                                    <td style={{ color: 'var(--text-light)', fontSize: '0.85rem' }}>{new Date(h.enviado_em).toLocaleString([], {hour: '2-digit', minute:'2-digit', day:'2-digit', month:'2-digit'})}</td>
                                     <td>
                                         {h.status === 'enviado' ? 
-                                            <span className="badge badge-success" style={{display:'flex', alignItems:'center', gap:4, width:'fit-content'}}><CheckCircle size={14}/> SUCESSO</span> :
-                                            <span className="badge badge-error" style={{display:'flex', alignItems:'center', gap:4, width:'fit-content'}}><X size={14}/> FALHA</span>
+                                            <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.2)' }}><CheckCircle size={14}/> Entregue</span> :
+                                            <span className="badge" style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: '1px solid rgba(239, 68, 68, 0.2)' }}><X size={14}/> Falha</span>
                                         }
                                     </td>
-                                    <td style={{color: 'var(--text-light)', fontSize: '0.8rem'}}>Aguardando IMAP</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -294,28 +316,24 @@ export const Tribunais = () => {
 
             {/* Confirmation Delete Modal */}
             {deleteConfirm && (
-                <div className="modal-overlay" onClick={() => setDeleteConfirm(null)} style={{ background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(16px)' }}>
-                    <div className="modal-content animate-fade" style={{ maxWidth: 600, border: '1px solid rgba(239, 68, 68, 0.2)', padding: 'clamp(2rem, 5vw, 4rem)' }} onClick={e => e.stopPropagation()}>
-                        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-                            <div style={{ width: 80, height: 80, background: 'var(--error-bg)', color: 'var(--error)', borderRadius: '50%', display: 'grid', placeItems: 'center', margin: '0 auto 2rem', boxShadow: '0 0 40px rgba(239, 68, 68, 0.15)' }}>
-                                <Trash2 size={40} />
+                <div className="modal-overlay" onClick={() => setDeleteConfirm(null)} style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)' }}>
+                    <div className="modal-content animate-fade" style={{ maxWidth: 420, border: '1px solid rgba(239, 68, 68, 0.2)', padding: '2.5rem', borderRadius: '1.25rem' }} onClick={e => e.stopPropagation()}>
+                        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                            <div style={{ width: 64, height: 64, background: 'var(--error-bg)', color: 'var(--error)', borderRadius: '50%', display: 'grid', placeItems: 'center', margin: '0 auto 1.5rem', boxShadow: '0 0 40px rgba(239, 68, 68, 0.15)' }}>
+                                <Trash2 size={32} />
                             </div>
-                            <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '1rem', fontFamily: 'Outfit' }}>Confirmar Exclusão?</h2>
-                            <p style={{ fontSize: '1.15rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                                Você está removendo permanentemente o tribunal <strong style={{ color: 'var(--text-main)' }}>{deleteConfirm.nome}</strong>.
+                            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.5rem', fontFamily: 'Outfit' }}>Excluir Registro?</h2>
+                            <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>
+                                Você removerá definitivamente o tribunal <strong>{deleteConfirm.nome}</strong> desta base.
                             </p>
                         </div>
 
-                        <div style={{ background: 'var(--error-bg)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(239, 68, 68, 0.1)', marginBottom: '2.5rem' }}>
-                            <p style={{ color: 'var(--error)', fontWeight: 700, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', fontSize: '1rem' }}>
-                                <AlertCircle size={20} /> ATENÇÃO: Esta exclusão não pode ser desfeita!
-                            </p>
-                        </div>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
-                            <button className="btn btn-outline" style={{ padding: '1.25rem' }} onClick={() => setDeleteConfirm(null)}>Manter Registro</button>
-                            <button className="btn btn-primary" style={{ background: 'var(--error)', borderColor: 'var(--error)', padding: '1.25rem', boxShadow: '0 10px 20px rgba(239, 68, 68, 0.2)' }} onClick={() => handleDelete(deleteConfirm)} disabled={loading}>
-                                {loading ? 'Excluindo...' : 'Sim, Excluir Agora'}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '2rem' }}>
+                            <button className="btn btn-primary" style={{ background: 'var(--error)', borderColor: 'var(--error)', padding: '1rem', width: '100%', fontSize: '1rem' }} onClick={() => handleDelete(deleteConfirm)} disabled={loading}>
+                                {loading ? 'Removendo...' : 'Sim, Excluir Agora'}
+                            </button>
+                            <button className="btn btn-outline" style={{ padding: '1rem', width: '100%', border: 'none', background: 'var(--bg-muted)' }} onClick={() => setDeleteConfirm(null)}>
+                                Cancelar
                             </button>
                         </div>
                     </div>
@@ -324,46 +342,39 @@ export const Tribunais = () => {
 
             {isModalOpen && (
                 <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
-                    <div className="modal-content animate-fade" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
+                    <div className="modal-content animate-fade" style={{ maxWidth: 500, padding: '2.5rem', borderRadius: '1.25rem' }} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header" style={{ marginBottom: '1.5rem', paddingBottom: '1rem' }}>
                             <div>
-                                <h2 style={{fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                                    <UploadCloud size={20} color="var(--primary)" /> Subir em Massa
+                                <h2 style={{fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-main)'}}>
+                                    <UploadCloud size={20} color="var(--primary)" /> Inserir Contatos
                                 </h2>
-                                <p style={{fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem'}}>
-                                    Cole seus contatos copiados do Excel ou Planilha.
-                                </p>
                             </div>
                             <button className="modal-close" onClick={() => setIsModalOpen(false)}>
                                 <X size={20} />
                             </button>
                         </div>
 
-                        <div style={{background: 'var(--bg-muted)', padding: '1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem'}}>
-                            <p style={{fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: 500, marginBottom: '0.5rem'}}>Formato esperado (1 registro por linha):</p>
-                            <code style={{fontSize: '0.8rem', color: 'var(--secondary)'}}>Nome do Tribunal ; email_contato@tj.jus.br ; SP</code>
+                        <div style={{ marginBottom: '1.25rem' }}>
+                            <label className="form-label" style={{fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: 600}}>1. Qual arquivo base? (.csv, .txt)</label>
+                            <input type="file" accept=".csv,.txt" className="form-input" style={{ padding: '0.75rem', fontSize: '0.85rem', marginTop: '0.5rem' }} onChange={handleFileUpload} />
                         </div>
 
-                        <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                            <label className="form-label" style={{fontSize: '0.9rem', color: 'var(--primary)'}}>Opção 1: Selecionar arquivo (.csv ou .txt)</label>
-                            <input type="file" accept=".csv,.txt" className="form-input" onChange={handleFileUpload} />
+                        <div style={{ marginBottom: '1rem' }}>
+                            <label className="form-label" style={{fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: 600}}>
+                                2. Ou cole no formato: <span style={{ color: 'var(--primary)', fontWeight: 400 }}>Nome; Email; UF</span>
+                            </label>
+                            <textarea 
+                                className="form-input" 
+                                style={{ height: '140px', resize: 'vertical', fontFamily: 'monospace', fontSize: '0.85rem', marginTop: '0.5rem', background: 'var(--bg-main)' }}
+                                value={bulkText}
+                                onChange={e => setBulkText(e.target.value)}
+                                placeholder="Tribunal de Justiça de SP; vara1@tjsp.jus.br; SP"
+                            ></textarea>
                         </div>
 
-                        <label className="form-label" style={{fontSize: '0.9rem'}}>Opção 2: Ou cole os textos diretamente aqui abaixo</label>
-                        <textarea 
-                            className="form-input" 
-                            style={{ height: '220px', resize: 'vertical', fontFamily: 'monospace', fontSize: '0.85rem' }}
-                            value={bulkText}
-                            onChange={e => setBulkText(e.target.value)}
-                            placeholder={"1ª Vara Cível de São Paulo; vara1@tjsp.jus.br; SP\n2ª Vara do Trabalho; vt2@trt2.jus.br; SP"}
-                        ></textarea>
-
-                        <div style={{display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem'}}>
-                            <button className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Cancelar</button>
-                            <button className="btn btn-primary" onClick={handleBulkInsert} disabled={loading || !bulkText.trim()}>
-                                {loading ? 'Validando e Importando...' : 'Iniciar Importação'}
-                            </button>
-                        </div>
+                        <button className="btn btn-primary" style={{ width: '100%', padding: '1rem' }} onClick={handleBulkInsert} disabled={loading || !bulkText.trim()}>
+                            {loading ? 'Sincronizando...' : 'Iniciar Importação'}
+                        </button>
                     </div>
                 </div>
             )}
@@ -371,38 +382,34 @@ export const Tribunais = () => {
             {/* Edit Tribunal Modal */}
             {editTribunal && (
                 <div className="modal-overlay" onClick={() => setEditTribunal(null)} style={{ background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(20px)' }}>
-                    <div className="modal-content animate-fade" style={{ maxWidth: 800, padding: 'clamp(2rem, 5vw, 4rem)', boxShadow: '0 40px 100px rgba(0,0,0,0.1)', width: '95vw' }} onClick={e => e.stopPropagation()}>
-                        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-                            <div style={{ width: 64, height: 64, background: 'var(--primary-glow)', color: 'var(--primary)', borderRadius: '16px', display: 'grid', placeItems: 'center', margin: '0 auto 1.5rem' }}>
-                                <Pencil size={32} />
+                    <div className="modal-content animate-fade" style={{ maxWidth: 450, padding: '2.5rem', boxShadow: '0 40px 100px rgba(0,0,0,0.1)', borderRadius: '1.25rem' }} onClick={e => e.stopPropagation()}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{ width: 48, height: 48, background: 'var(--primary-glow)', color: 'var(--primary)', borderRadius: '12px', display: 'grid', placeItems: 'center' }}>
+                                    <Pencil size={24} />
+                                </div>
+                                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)' }}>Editar Contato</h2>
                             </div>
-                            <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.03em' }}>Editar Registro</h2>
-                            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Atualize as informações de contato do tribunal ou vara.</p>
+                            <button className="modal-close" onClick={() => setEditTribunal(null)}><X size={20}/></button>
                         </div>
                         
-                        <form onSubmit={handleUpdate} style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                                <div className="form-group">
-                                    <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.75rem' }}>Nome do Tribunal / Vara</label>
-                                    <input className="form-input" style={{ padding: '1.25rem', fontSize: '1rem' }} required value={editTribunal.nome} onChange={e=>setEditTribunal({...editTribunal, nome: e.target.value})} placeholder="Ex: 1ª Vara Cível de São Paulo" />
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.75rem' }}>E-mail de Contato</label>
-                                    <input className="form-input" style={{ padding: '1.25rem', fontSize: '1rem' }} type="email" required value={editTribunal.email} onChange={e=>setEditTribunal({...editTribunal, email: e.target.value})} placeholder="contato@tj.jus.br" />
-                                </div>
+                        <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                                <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.5rem' }}>Nome ou Variável de Tratamento</label>
+                                <input className="form-input" style={{ padding: '1rem' }} required value={editTribunal.nome} onChange={e=>setEditTribunal({...editTribunal, nome: e.target.value})} />
                             </div>
-                            
-                            <div className="form-group">
-                                <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.75rem' }}>Estado (UF)</label>
-                                <input className="form-input" style={{ padding: '1.25rem', fontSize: '1rem', width: '120px', textAlign: 'center' }} maxLength="2" required value={editTribunal.estado} onChange={e=>setEditTribunal({...editTribunal, estado: e.target.value.toUpperCase()})} />
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                                <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.5rem' }}>Endereço de E-mail</label>
+                                <input className="form-input" style={{ padding: '1rem' }} type="email" required value={editTribunal.email} onChange={e=>setEditTribunal({...editTribunal, email: e.target.value})} />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                                <label className="form-label" style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.5rem' }}>UF</label>
+                                <input className="form-input" style={{ padding: '1rem' }} maxLength="2" required value={editTribunal.estado} onChange={e=>setEditTribunal({...editTribunal, estado: e.target.value.toUpperCase()})} />
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1.5rem', marginTop: '1rem' }}>
-                                <button type="button" className="btn btn-outline" style={{ padding: '1.25rem' }} onClick={() => setEditTribunal(null)}>Descartar Álterações</button>
-                                <button type="submit" className="btn btn-primary" style={{ padding: '1.25rem', fontSize: '1.1rem' }} disabled={loading}>
-                                    {loading ? 'Salvando...' : '💾 Atualizar Informações'}
-                                </button>
-                            </div>
+                            <button type="submit" className="btn btn-primary" style={{ padding: '1rem', marginTop: '1rem', width: '100%', fontSize: '1rem' }} disabled={loading}>
+                                {loading ? 'Atualizando...' : 'Concluir Edição'}
+                            </button>
                         </form>
                     </div>
                 </div>
